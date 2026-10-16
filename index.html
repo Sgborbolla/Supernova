@@ -8,13 +8,18 @@
 <script src="lib/peerjs.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;}
-canvas{display:block;}
-#menu-overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.94);color:#fff;font-family:monospace;z-index:100;padding:16px;overflow-y:auto;}
-#menu-overlay h1{color:#ffaa00;font-size:2.4em;letter-spacing:4px;text-shadow:0 0 20px #ff8800;}
-.sub{color:#88bbff;margin-bottom:14px;font-size:.85em;}
-.menu-btn{display:block;width:280px;max-width:90vw;margin:7px auto;padding:13px;
+html,body{width:100%;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;}
+body{position:fixed;top:0;left:0;}
+canvas{display:block;touch-action:none;}
+#menu-overlay{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  background:rgba(0,0,0,0.94);color:#fff;font-family:monospace;z-index:100;
+  padding:calc(16px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#menu-overlay>*{flex-shrink:0;}
+#menu-overlay::before,#menu-overlay::after{content:'';margin:auto;height:0;}
+#menu-overlay h1{color:#ffaa00;font-size:clamp(1.7em,7.5vw,2.4em);letter-spacing:4px;text-shadow:0 0 20px #ff8800;text-align:center;}
+.sub{color:#88bbff;margin-bottom:14px;font-size:.85em;text-align:center;}
+.menu-btn{display:block;width:min(280px,88vw);margin:7px auto;padding:13px;
   background:transparent;border:2px solid #00d4ff;color:#00d4ff;font-family:monospace;font-size:1.05em;cursor:pointer;}
 .menu-btn:active{background:#00d4ff;color:#000;}
 .menu-btn.gold{border-color:#ffaa00;color:#ffaa00;}
@@ -23,10 +28,12 @@ canvas{display:block;}
 .credits .author{color:#ffaa00;font-size:1.15em;}
 #room-code-display{color:#ffaa00;font-size:1.4em;margin:8px 0;letter-spacing:3px;padding:8px 16px;border:1px solid #ffaa00;}
 #join-input{padding:10px;font-family:monospace;font-size:1.2em;text-align:center;background:#111;border:2px solid #00d4ff;color:#fff;width:200px;letter-spacing:3px;text-transform:uppercase;}
-.ship-select-grid{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;justify-content:center;max-width:400px;}
-.ship-card{width:88px;padding:10px 5px;border:2px solid #333;text-align:center;cursor:pointer;color:#fff;font-family:monospace;font-size:.68em;}
-.ship-card.selected{border-color:#ffaa00;background:rgba(255,170,0,0.15);}
+.ship-select-grid{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;justify-content:center;max-width:min(440px,94vw);}
+.ship-card{width:min(100px,44vw);padding:8px 4px;border:2px solid #333;text-align:center;cursor:pointer;color:#fff;font-family:monospace;font-size:.68em;background:rgba(10,15,30,0.6);border-radius:10px;}
+.ship-card.selected{border-color:#ffaa00;background:rgba(255,170,0,0.15);box-shadow:0 0 14px rgba(255,170,0,0.5);}
 .ship-card .icon{font-size:1.9em;margin-bottom:4px;}
+.ship-card .ship-thumb{width:56px;height:auto;image-rendering:auto;display:block;margin:0 auto 4px;}
+.ship-card .sname{font-size:1.05em;color:#fff;margin-bottom:3px;font-weight:bold;}
 .ship-card .stat{color:#88bbff;font-size:.9em;}
 #status-msg{color:#44ff44;margin:8px 0;min-height:1.2em;font-size:.85em;}
 #player-list{color:#88bbff;margin:4px 0;font-size:.9em;}
@@ -85,6 +92,7 @@ window.addEventListener('unhandledrejection',function(ev){var b=document.getElem
 <script>
 const W=400,H=700;
 const DRAG_SENS=1.0;
+const SHIP_IMG={};
 
 // ===== helpers de dibujo procedural =====
 const OUT=0x080c16;
@@ -457,6 +465,7 @@ class BootScene extends Phaser.Scene{
    g=this.make.graphics({add:false});
    drawPlayerShip(g,s.key,s.color);
    g.generateTexture('ship_'+s.key,44,62);
+   try{SHIP_IMG[s.key]=this.textures.get('ship_'+s.key).getSourceImage().toDataURL();}catch(e){}
   });
   // aliado / dron
   g=this.make.graphics({add:false});drawAlly(g);g.generateTexture('ally',28,34);
@@ -1132,7 +1141,9 @@ const su=localStorage.getItem('snova_uid');if(su){userId=su.toUpperCase();const 
 function renderShipGrid(id){ const grid=document.getElementById(id);if(!grid)return;grid.innerHTML='';
  SHIPS.forEach((s,i)=>{
   const c=document.createElement('div');c.className='ship-card'+(i===selectedShipIdx?' selected':'');
-  c.innerHTML='<div class="icon" style="color:#'+s.color.toString(16).padStart(6,'0')+'">'+s.icon+'</div><div>'+s.name+'</div><div class="stat">POT '+s.power+'</div><div class="stat">VEL '+Math.floor(s.speed/10)+'</div>';
+  const col='#'+s.color.toString(16).padStart(6,'0');
+  const thumb=SHIP_IMG[s.key]?'<img class="ship-thumb" src="'+SHIP_IMG[s.key]+'" alt="'+s.name+'">':'<div class="icon" style="color:'+col+'">'+s.icon+'</div>';
+  c.innerHTML=thumb+'<div class="sname">'+s.name+'</div><div class="stat"><span style="color:'+col+'">●</span> POT '+s.power+'</div><div class="stat">VEL '+Math.floor(s.speed/10)+'</div>';
   c.onclick=()=>{selectedShipIdx=i;Array.from(grid.children).forEach(x=>x.classList.remove('selected'));c.classList.add('selected');};
   grid.appendChild(c);
  });

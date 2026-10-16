@@ -518,41 +518,45 @@ const AUDIO = (() => {
     if (hpFreq){ const f=ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=hpFreq; src.connect(f); tail=f; }
     tail.connect(g); g.connect(musicGain); src.start(t);
   }
-  // ===== MÚSICA CYBERPUNK / SYNTHWAVE =====
+  // ===== MÚSICA DISCO / ELECTRÓNICA =====
   function startMusic(){
     if (!enabled||musicTimer) return;
     init(); resume();
-    const bpm=124, stepTime=60/bpm/4;          // 16avos
+    const bpm=120, stepTime=60/bpm/4;           // 16avos
     const NOTE=m=>440*Math.pow(2,(m-69)/12);
-    const bassRoot=[33,29,36,31];              // Am  F  C  G  (2 octabas abajo)
+    const bassRoot=[33,29,36,31];               // Am  F  C  G
     const chords=[[57,60,64,69],[53,57,60,65],[60,64,67,72],[55,59,62,67]];
-    const pads=[[45,57,64,69],[41,53,60,65],[48,60,64,67],[43,55,62,67]];
+    const strings=[[69,72,76,81],[65,69,72,77],[72,76,79,84],[67,71,74,79]];
     musicStep=0;
     musicTimer=setInterval(()=>{
       if (!enabled||!ctx) return;
       const t=ctx.currentTime+0.01;
-      const step=musicStep%64;
-      const bar=Math.floor(step/16), s=step%16;
-      // Bombo (4x4)
-      if (s%4===0){
+      const step=musicStep%16;
+      const bar=Math.floor(musicStep/16)%4;
+      // Bombo a cuatro (disco)
+      if (step%4===0){
         const o=ctx.createOscillator(), g=ctx.createGain();
-        o.type='sine'; o.frequency.setValueAtTime(150,t);
-        o.frequency.exponentialRampToValueAtTime(38,t+0.12);
-        g.gain.setValueAtTime(0.9,t);
-        g.gain.exponentialRampToValueAtTime(0.001,t+0.18);
-        o.connect(g); g.connect(musicGain); o.start(t); o.stop(t+0.2);
+        o.type="sine"; o.frequency.setValueAtTime(150,t);
+        o.frequency.exponentialRampToValueAtTime(45,t+0.12);
+        g.gain.setValueAtTime(1.0,t);
+        g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+        o.connect(g); g.connect(musicGain); o.start(t); o.stop(t+0.22);
       }
-      // Caja
-      if (s===4||s===12){ noiseAt(t,0.14,0.22,1400); tone(190,0.08,'triangle',0.08,musicGain); }
-      // Hi-hat
-      if (s%2===1) noiseAt(t,0.04,0.09,7000);
-      if (s===14) noiseAt(t,0.12,0.10,6000);
-      // Bajo saw
-      if (s%2===0){ const m=bassRoot[bar]+((s%8===6)?12:0); tone(NOTE(m),0.19,'sawtooth',0.15,musicGain); }
-      // Arpegio
-      { const ch=chords[bar]; tone(NOTE(ch[s%4]+12),0.09,'square',0.045,musicGain); }
-      // Pad al inicio de compás
-      if (s===0){ pads[bar].forEach(m=>tone(NOTE(m),stepTime*15,'sine',0.028,musicGain)); }
+      // Palmas en el 2 y el 4
+      if (step===4||step===12){ noiseAt(t,0.12,0.24,1600); noiseAt(t,0.03,0.12,3000); }
+      // Hi-hats en corcheas + abierto en contratiempos
+      if (step%2===0){ noiseAt(t,0.03,0.06,9000); }
+      if (step%4===2){ noiseAt(t,0.14,0.13,7500); }
+      // Bajo funky en octavas
+      if (step%2===0){ const up=(step%4===2)?12:0; tone(NOTE(bassRoot[bar]+up),0.17,"sawtooth",0.18,musicGain); }
+      // Stabs de acordes electronicos en contratiempos
+      if (step%4===2){ chords[bar].forEach(m=>tone(NOTE(m),0.13,"square",0.035,musicGain)); }
+      // Arpegio brillante
+      { const ch=chords[bar]; tone(NOTE(ch[step%4]+24),0.05,"square",0.028,musicGain); }
+      // Cuerdas/pad al inicio del compas
+      if (step===0){ strings[bar].forEach(m=>tone(NOTE(m),stepTime*15,"sine",0.02,musicGain)); }
+      // Blips electronicos
+      if (step===7){ tone(NOTE(76),0.06,"sawtooth",0.05,musicGain,NOTE(88)); }
       musicStep++;
     }, stepTime*1000);
   }
@@ -2250,10 +2254,15 @@ class CreditsScene extends Phaser.Scene {
   if(sc){ for(var i=0;i<150;i++){ var s=document.createElement('div'); s.className='star'; var sz=Math.random()*2+1; s.style.width=sz+'px'; s.style.height=sz+'px'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=Math.random()*3+'s'; s.style.animationDuration=(Math.random()*3+2)+'s'; sc.appendChild(s); } }
   var sk=document.getElementById('intro-sparks');
   if(sk){ for(var j=0;j<30;j++){ var p=document.createElement('div'); p.className='spark'; p.style.left=Math.random()*100+'%'; p.style.top=Math.random()*100+'%'; if(p.style.setProperty){ p.style.setProperty('--dx',(Math.random()*200-100)+'px'); p.style.setProperty('--dy',(Math.random()*200-100)+'px'); } p.style.animationDelay=Math.random()*8+'s'; p.style.animationDuration=(Math.random()*6+6)+'s'; sk.appendChild(p); } }
+  var unlocked=false;
+  function unlockAudio(){ if(unlocked) return; unlocked=true; try{ AUDIO.init(); AUDIO.resume(); if(!AUDIO.isPlaying()) AUDIO.startMusic(); }catch(e){} }
+  document.addEventListener('pointerdown',unlockAudio,{once:true});
+  document.addEventListener('touchstart',unlockAudio,{once:true});
+  document.addEventListener('click',unlockAudio,{once:true});
   var sub=document.getElementById('intro-subtitle'); if(sub) sub.textContent=t('introSub');
   var btn=document.getElementById('intro-start');
   if(btn){ btn.addEventListener('click',function(){
-    try{ AUDIO.init(); AUDIO.resume(); AUDIO.sfx('click'); }catch(e){}
+    try{ unlockAudio(); AUDIO.sfx('click'); }catch(e){}
     var el=document.getElementById('intro-overlay');
     if(el){ el.classList.add('intro-hide'); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },650); }
   }); }

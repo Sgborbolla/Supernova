@@ -3,3 +3,10 @@
 # Salidas de servidor locales
 .musicdl/server.out
 .musicdl/server8001.out
+# Capacitor / Android (generados en CI)
+node_modules/
+www/
+android/
+package-lock.json
+Supernova.apk
+Supernova.aab

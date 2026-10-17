@@ -1,0 +1,8 @@
+{
+  "appId": "com.sgborbolla.supernova",
+  "appName": "Supernova",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

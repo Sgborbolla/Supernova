@@ -1,0 +1,16 @@
+{
+  "name": "supernova",
+  "version": "1.0.0",
+  "description": "Supernova - juego 2D de naves espaciales",
+  "private": true,
+  "scripts": {
+    "android:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}

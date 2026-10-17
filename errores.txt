@@ -1,0 +1,49 @@
+2026-10-16 19:50:12  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:50:13  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:50:15  AUDIO_after en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:50:27  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 19:53:24  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:53:26  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:53:27  AUDIO_after en=1 ctx=running playing=1 tr=-1
+2026-10-16 19:53:29  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 19:55:07  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:55:09  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:55:10  AUDIO_after en=1 ctx=running playing=1 tr=-1
+2026-10-16 19:56:27  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:56:29  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:56:31  AUDIO_after en=1 ctx=running playing=1 tr=-1
+2026-10-16 19:56:35  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 19:58:46  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:58:48  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:58:49  AUDIO_after en=1 ctx=running playing=1 tr=-1
+2026-10-16 19:59:57  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:59:58  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 19:59:59  AUDIO_after en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:00:00  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 20:06:49  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:06:51  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:06:52  AUDIO_after en=1 ctx=running playing=1 tr=-1
+2026-10-16 20:06:53  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 20:07:07  DIAG lvl=0 god=true freeze=true n=1 spawned=1 total=14 alive=1 | e0 x=425 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_drone
+2026-10-16 20:26:22  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:26:32  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:26:35  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:26:36  AUDIO_after en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 20:26:38  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 20:26:45  DIAG lvl=0 god=true freeze=true n=1 spawned=1 total=14 alive=1 | e0 x=81 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_drone
+2026-10-16 21:33:04  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 21:34:03  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 21:34:03  AUDIO_after en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 21:34:13  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 21:34:23  DIAG lvl=2 god=true freeze=true n=1 spawned=1 total=16 alive=1 | e0 x=247 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_hunter
+2026-10-16 21:38:05  Uncaught TypeError: Cannot read properties of undefined (reading 'size') @ phaser.min.js:1:242068
+2026-10-16 21:38:20  AUDIO_load en=1 ctx=running playing=1 tr=-1
+2026-10-16 21:38:21  AUDIO_unlock en=1 ctx=running playing=1 tr=-1
+2026-10-16 21:38:21  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-16 21:38:23  AUDIO_after en=1 ctx=running playing=1 tr=-6
+2026-10-16 21:38:28  DIAG lvl=4 god=true freeze=true n=1 spawned=1 total=18 alive=1 | e0 x=404 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_hunter
+2026-10-16 21:38:35  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 21:38:37  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-16 21:38:37  AUDIO_start en=1 ctx=suspended playing=1 tr=-6
+2026-10-16 21:38:39  AUDIO_after en=1 ctx=running playing=1 tr=-6
+2026-10-16 21:38:45  DIAG lvl=4 god=true freeze=true n=1 spawned=1 total=18 alive=1 | e0 x=210 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_elite

@@ -1,0 +1,514 @@
+[
+ {
+  "slot": "intro",
+  "src": "https://opengameart.org/sites/default/files/Caves.ogg",
+  "title": "T &amp; T Free Cyberpunk Pack",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "t-t-free-cyberpunk-pack"
+ },
+ {
+  "slot": "select",
+  "src": "https://opengameart.org/sites/default/files/new_factory_129bpm.ogg",
+  "title": "T &amp; T Free Cyberpunk Pack 2",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "t-t-free-cyberpunk-pack-2"
+ },
+ {
+  "slot": "credits",
+  "src": "https://opengameart.org/sites/default/files/cyberpunkmenu.ogg",
+  "title": "Cyberpunk Menu Music",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "cyberpunk-menu-music"
+ },
+ {
+  "slot": "victory",
+  "src": "https://opengameart.org/sites/default/files/claimed_by_the_void_mix.ogg",
+  "title": "Claimed by the void, new factory, AI fight and simulation unknown (vitalezzz vs Tricksntraps)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "claimed-by-the-void-new-factory-ai-fight-and-simulation-unknown-vitalezzz-vs-tricksntraps"
+ },
+ {
+  "slot": "lvl0",
+  "src": "https://opengameart.org/sites/default/files/corrupt_data_stream.ogg",
+  "title": "Corrupt Data Stream",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "corrupt-data-stream"
+ },
+ {
+  "slot": "lvl1",
+  "src": "https://opengameart.org/sites/default/files/ruskerdax_-_cybershaman_preview.ogg",
+  "title": "Cybershaman",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "cybershaman"
+ },
+ {
+  "slot": "lvl2",
+  "src": "https://opengameart.org/sites/default/files/synthwavehouse.ogg",
+  "title": "Synthwave House Loop",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "synthwave-house-loop"
+ },
+ {
+  "slot": "lvl3",
+  "src": "https://opengameart.org/sites/default/files/auferstanden_aus_ruinen.ogg",
+  "title": "Synthwave - Auferstanden aus Ruinen [2:45]",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "synthwave-auferstanden-aus-ruinen-245"
+ },
+ {
+  "slot": "lvl4",
+  "src": "https://opengameart.org/sites/default/files/slampe.ogg",
+  "title": "Slampe - Synthwave House",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "slampe-synthwave-house"
+ },
+ {
+  "slot": "lvl5",
+  "src": "https://opengameart.org/sites/default/files/space_adventure_bpm140.ogg",
+  "title": "Space Adventure",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-adventure"
+ },
+ {
+  "slot": "lvl6",
+  "src": "https://opengameart.org/sites/default/files/boss_fight_2.ogg",
+  "title": "Boss Fight 2",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "boss-fight-2"
+ },
+ {
+  "slot": "lvl7",
+  "src": "https://opengameart.org/sites/default/files/space_city_bpm115.ogg",
+  "title": "Space City",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-city"
+ },
+ {
+  "slot": "lvl8",
+  "src": "https://opengameart.org/sites/default/files/Vaporwave.ogg",
+  "title": "Trance / trap / electronic [2:37]",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "trance-trap-electronic-237"
+ },
+ {
+  "slot": "lvl9",
+  "src": "https://opengameart.org/sites/default/files/techno.ogg",
+  "title": "Piece of techno music",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "piece-of-techno-music"
+ },
+ {
+  "slot": "lvl10",
+  "src": "https://opengameart.org/sites/default/files/diver_1.ogg",
+  "title": "Slow fun techno track 1",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "slow-fun-techno-track-1"
+ },
+ {
+  "slot": "lvl11",
+  "src": "https://opengameart.org/sites/default/files/slow_techno_track_2_prev.ogg",
+  "title": "Slow fun techno track 2",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "slow-fun-techno-track-2"
+ },
+ {
+  "slot": "lvl12",
+  "src": "https://opengameart.org/sites/default/files/techno_dawn_prog_v4.ogg",
+  "title": "Dawn of Hope(Techno)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "dawn-of-hopetechno"
+ },
+ {
+  "slot": "lvl13",
+  "src": "https://opengameart.org/sites/default/files/fast_techno_action_loop.ogg",
+  "title": "Fast fun action techno loop 1",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "fast-fun-action-techno-loop-1"
+ },
+ {
+  "slot": "lvl14",
+  "src": "https://opengameart.org/sites/default/files/MyVeryOwnDeadShip.ogg",
+  "title": "Background space track",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "background-space-track"
+ },
+ {
+  "slot": "lvl15",
+  "src": "https://opengameart.org/sites/default/files/ObservingTheStar.ogg",
+  "title": "Another space background track",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "another-space-background-track"
+ },
+ {
+  "slot": "lvl16",
+  "src": "https://opengameart.org/sites/default/files/OutThere.ogg",
+  "title": "Space Music: Out There",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-music-out-there"
+ },
+ {
+  "slot": "lvl17",
+  "src": "https://opengameart.org/sites/default/files/crazy-space.ogg",
+  "title": "crazy space",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "crazy-space"
+ },
+ {
+  "slot": "lvl18",
+  "src": "https://opengameart.org/sites/default/files/Out%20in%20Space.ogg",
+  "title": "Out in Space",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "out-in-space-0"
+ },
+ {
+  "slot": "lvl19",
+  "src": "https://opengameart.org/sites/default/files/Space%20Bass.ogg",
+  "title": "Space Bass",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-bass"
+ },
+ {
+  "slot": "lvl20",
+  "src": "https://opengameart.org/sites/default/files/Spacearray.ogg",
+  "title": "Deep Space Array",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "deep-space-array"
+ },
+ {
+  "slot": "lvl21",
+  "src": "https://opengameart.org/sites/default/files/Vape%20In%20Space.ogg",
+  "title": "Vape In Space",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "vape-in-space"
+ },
+ {
+  "slot": "lvl22",
+  "src": "https://opengameart.org/sites/default/files/Space%20Bass%20Evil.ogg",
+  "title": "Space Bass Evil",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-bass-evil"
+ },
+ {
+  "slot": "lvl23",
+  "src": "https://opengameart.org/sites/default/files/46.ogg",
+  "title": "A Wonderful Nightmare (Chiptune version)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "a-wonderful-nightmare-chiptune-version"
+ },
+ {
+  "slot": "lvl24",
+  "src": "https://opengameart.org/sites/default/files/eeriechoir.ogg",
+  "title": "Retro Tunes",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "retro-tunes"
+ },
+ {
+  "slot": "lvl25",
+  "src": "https://opengameart.org/sites/default/files/boss_battle_10_retro_0.ogg",
+  "title": "Boss Battle 10 [Retro]",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "boss-battle-10-retro"
+ },
+ {
+  "slot": "lvl26",
+  "src": "https://opengameart.org/sites/default/files/5_rise_hero_bpm180.ogg",
+  "title": "Synth Hero[Music Pack]",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "synth-heromusic-pack"
+ },
+ {
+  "slot": "lvl27",
+  "src": "https://opengameart.org/sites/default/files/concept1d.ogg",
+  "title": "OverDrive [Final]",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "overdrive-final"
+ },
+ {
+  "slot": "lvl28",
+  "src": "https://opengameart.org/sites/default/files/Birds%2C%20Wind%2C%20Synth%20%28Final%20B%20Mix%29.ogg",
+  "title": "Birds and Wind - Ambient, Birds, Wind and Synth",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "birds-and-wind-ambient-birds-wind-and-synth"
+ },
+ {
+  "slot": "lvl29",
+  "src": "https://opengameart.org/sites/default/files/fight.ogg",
+  "title": "Fast fight / battle music",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "fast-fight-battle-music"
+ },
+ {
+  "slot": "lvl30",
+  "src": "https://opengameart.org/sites/default/files/Battle%201.ogg",
+  "title": "Is it a Battle?",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "is-it-a-battle"
+ },
+ {
+  "slot": "lvl31",
+  "src": "https://opengameart.org/sites/default/files/fight_looped.ogg",
+  "title": "Fast fight / battle music (looped)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "fast-fight-battle-music-looped"
+ },
+ {
+  "slot": "lvl32",
+  "src": "https://opengameart.org/sites/default/files/BW3_0.ogg",
+  "title": "Battle! Wazeel!",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "battle-wazeel"
+ },
+ {
+  "slot": "lvl33",
+  "src": "https://opengameart.org/sites/default/files/CleytonRX%20-%20Battle%20RPG%20Theme%20Var.ogg",
+  "title": "Boss Battle Theme",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "boss-battle-theme"
+ },
+ {
+  "slot": "lvl34",
+  "src": "https://opengameart.org/sites/default/files/battle%20vs%20gyokaijuu%20NEW.ogg",
+  "title": "Battle! vs Minor Gyokaijuu",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "battle-vs-minor-gyokaijuu"
+ },
+ {
+  "slot": "lvl35",
+  "src": "https://opengameart.org/sites/default/files/trance_city_bpm130.ogg",
+  "title": "Trance City",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "trance-city"
+ },
+ {
+  "slot": "lvl36",
+  "src": "https://opengameart.org/sites/default/files/trance_battle_bpm140.ogg",
+  "title": "Trance Battle",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "trance-battle"
+ },
+ {
+  "slot": "lvl37",
+  "src": "https://opengameart.org/sites/default/files/trance_boss_battle_bpm150.ogg",
+  "title": "Trance Boss Battle",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "trance-boss-battle"
+ },
+ {
+  "slot": "lvl38",
+  "src": "https://opengameart.org/sites/default/files/Arcade%20Metal.ogg",
+  "title": "Synth/Metal Climax Theme",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "synthmetal-climax-theme"
+ },
+ {
+  "slot": "lvl39",
+  "src": "https://opengameart.org/sites/default/files/neon_flames_fluidr3.ogg",
+  "title": "Neon Flames",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "neon-flames"
+ },
+ {
+  "slot": "lvl40",
+  "src": "https://opengameart.org/sites/default/files/neon_sign_circuit_remake_bpm145.ogg",
+  "title": "Neon sign Circuit [Remake]",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "neon-sign-circuit-remake"
+ },
+ {
+  "slot": "lvl41",
+  "src": "https://opengameart.org/sites/default/files/neon_sign_circuit_bpm145.ogg",
+  "title": "Neon sign Circuit",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "neon-sign-circuit"
+ },
+ {
+  "slot": "lvl42",
+  "src": "https://opengameart.org/sites/default/files/lights_at_night.ogg",
+  "title": "Lights at Night",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "lights-at-night"
+ },
+ {
+  "slot": "lvl43",
+  "src": "https://opengameart.org/sites/default/files/l.a_war_zone.ogg",
+  "title": "L.A. War Zone",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "la-war-zone"
+ },
+ {
+  "slot": "lvl44",
+  "src": "https://opengameart.org/sites/default/files/chasedarbuka.ogg",
+  "title": "blow the day with a darbuka + chase (Adiutorium remixed)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "blow-the-day-with-a-darbuka-chase-adiutorium-remixed"
+ },
+ {
+  "slot": "lvl45",
+  "src": "https://opengameart.org/sites/default/files/streets_after_midnight.ogg",
+  "title": "Streets After Midnight",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "streets-after-midnight"
+ },
+ {
+  "slot": "lvl46",
+  "src": "https://opengameart.org/sites/default/files/carnageboss_battle_6_mix_1.ogg",
+  "title": "Carnage &amp; Boss battle (Centurion of war vs nene)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "carnage-boss-battle-centurion-of-war-vs-nene"
+ },
+ {
+  "slot": "lvl47",
+  "src": "https://opengameart.org/sites/default/files/space_boss_battle_bpm175.ogg",
+  "title": "Space Boss Battle",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-boss-battle"
+ },
+ {
+  "slot": "lvl48",
+  "src": "https://opengameart.org/sites/default/files/space_battle_bpm130.ogg",
+  "title": "Space Battle",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "space-battle"
+ },
+ {
+  "slot": "lvl49",
+  "src": "https://opengameart.org/sites/default/files/battle_for_mars_2025_-_loop.ogg",
+  "title": "Battle for Mars",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "battle-for-mars"
+ },
+ {
+  "slot": "lvl50",
+  "src": "https://opengameart.org/sites/default/files/dream_lost_in_cosmos_v9.2_1.ogg",
+  "title": "Cosmic Priest",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "cosmic-priest"
+ },
+ {
+  "slot": "lvl51",
+  "src": "https://opengameart.org/sites/default/files/sector_0.ogg",
+  "title": "Dark Sci-Fi Audio Pack",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "dark-sci-fi-audio-pack"
+ },
+ {
+  "slot": "lvl52",
+  "src": "https://opengameart.org/sites/default/files/jumpingcyborgmix2.ogg",
+  "title": "Jumping cyborg &amp; Welcome mix &amp; night club chill (tricksntraps remixed)",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "jumping-cyborg-welcome-mix-night-club-chill-tricksntraps-remixed"
+ },
+ {
+  "slot": "lvl53",
+  "src": "https://opengameart.org/sites/default/files/8BitBattleLoop.ogg",
+  "title": "8-Bit Battle Loop",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "8-bit-battle-loop"
+ },
+ {
+  "slot": "lvl54",
+  "src": "https://opengameart.org/sites/default/files/RPGBattleTheme-Loopable.ogg",
+  "title": "8-Bit RPG Battle/Encounter Theme",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "8-bit-rpg-battleencounter-theme"
+ },
+ {
+  "slot": "lvl55",
+  "src": "https://opengameart.org/sites/default/files/Action1%20-%20Encounter%20With%20The%20Witches.ogg",
+  "title": "JRPG Pack 5 Action",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "jrpg-pack-5-action"
+ },
+ {
+  "slot": "lvl56",
+  "src": "https://opengameart.org/sites/default/files/level32Preview.ogg",
+  "title": "Mild Action Track",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "mild-action-track"
+ },
+ {
+  "slot": "lvl57",
+  "src": "https://opengameart.org/sites/default/files/action%20loop.ogg",
+  "title": "Action Music Loop",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "action-music-loop"
+ },
+ {
+  "slot": "lvl58",
+  "src": "https://opengameart.org/sites/default/files/Hyohiaction2.ogg",
+  "title": "Hyoshi Action Track 2",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "hyoshi-action-track-2"
+ },
+ {
+  "slot": "lvl59",
+  "src": "https://opengameart.org/sites/default/files/Jazz%20Chiptune.ogg",
+  "title": "Action Packed Jazz Chiptune",
+  "author": "OpenGameArt.org",
+  "license": "CC0",
+  "slug": "action-packed-jazz-chiptune"
+ }
+]

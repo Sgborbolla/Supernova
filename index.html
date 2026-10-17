@@ -43,7 +43,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 .coop-section,.menu-section,.user-section,.menu-title,.menu-subtitle,#start-btn{position:relative;z-index:1;}
 .diff-btn:hover,.ship-btn:hover{background:rgba(0,180,220,0.3);border-color:#00ffff;color:#fff;}
 .diff-btn.active,.ship-btn.active{background:rgba(0,200,255,0.4);border-color:#00ffff;color:#fff;box-shadow:0 0 10px rgba(0,200,255,0.5);}
-.ship-btn canvas{display:block;margin:0 auto 3px;image-rendering:pixelated;}
+.ship-btn canvas{display:block;margin:0 auto 3px;}
+.ship-btn{max-width:104px;line-height:1.25;}
+.ship-btn .ship-name{font-size:9px;letter-spacing:0.5px;}
+.ship-btn .ship-sub{font-size:8px;color:#5f9fb5;margin-top:3px;letter-spacing:0;}
+.ship-btn.legendary{border-color:#c9a54a;background:rgba(120,92,14,0.28);}
+.ship-btn.legendary .ship-name{color:#ffd479;}
+.ship-btn.legendary .ship-sub{color:#b99a5a;}
+.ship-btn.legendary:hover,.ship-btn.legendary.active{border-color:#ffe08a;background:rgba(160,120,20,0.4);color:#fff;box-shadow:0 0 10px rgba(255,210,110,0.55);}
 .coop-section{margin-top:8px;padding:8px;background:rgba(0,50,80,0.3);border:1px solid #004466;border-radius:6px;width:100%;max-width:420px;}
 .coop-row{display:flex;gap:5px;justify-content:center;align-items:center;margin:4px 0;flex-wrap:wrap;}
 .coop-input{padding:5px 8px;background:rgba(0,30,50,0.8);border:1px solid #006688;color:#00ddff;font-family:'Courier New',monospace;font-size:11px;border-radius:3px;width:100px;text-align:center;letter-spacing:2px;}
@@ -289,10 +296,10 @@ const W = 480, H = 720;
 
 // ===== DIFICULTADES =====
 const DIFFS = [
-  { key:'easy',   name:'FÁCIL',   hpMul:0.7, spdMul:0.85, scoreMul:0.8, efire:1.3 },
-  { key:'normal', name:'NORMAL',  hpMul:1.0, spdMul:1.00, scoreMul:1.0, efire:1.0 },
-  { key:'hard',   name:'DIFÍCIL', hpMul:1.4, spdMul:1.15, scoreMul:1.3, efire:0.8 },
-  { key:'insane', name:'LOCURA',  hpMul:2.0, spdMul:1.30, scoreMul:1.8, efire:0.6 }
+  { key:'easy',   name:'FÁCIL',   hpMul:0.7, spdMul:0.85, scoreMul:0.8, efire:1.3, enemyMul:0.75 },
+  { key:'normal', name:'NORMAL',  hpMul:1.0, spdMul:1.00, scoreMul:1.0, efire:1.0, enemyMul:1.00 },
+  { key:'hard',   name:'DIFÍCIL', hpMul:1.4, spdMul:1.15, scoreMul:1.3, efire:0.8, enemyMul:1.30 },
+  { key:'insane', name:'LOCURA',  hpMul:2.0, spdMul:1.30, scoreMul:1.8, efire:0.6, enemyMul:1.60 }
 ];
 
 // ===== NAVES =====
@@ -300,7 +307,12 @@ const SHIPS = [
   { key:'viper',   name:'VIPER',   color:0x00cc66, speed:280, fireRate:180 },
   { key:'falcon',  name:'FALCON',  color:0x4488ff, speed:260, fireRate:150 },
   { key:'phantom', name:'PHANTOM', color:0xaa44ff, speed:300, fireRate:200 },
-  { key:'titan',   name:'TITAN',   color:0xff8800, speed:220, fireRate:130 }
+  { key:'titan',   name:'TITAN',   color:0xff8800, speed:220, fireRate:130 },
+  // ===== NAVES LEGENDARIAS (nombres reales) =====
+  { key:'xwing',  name:'X-WING · ROJA 5',        full:'Luke Skywalker · Star Wars',   color:0xe8ecef, speed:310, fireRate:175, legendary:true, w:56, h:70 },
+  { key:'tie',    name:'TIE ADVANCED x1',        full:'Darth Vader · Star Wars',      color:0x8b95a3, speed:340, fireRate:215, legendary:true, w:60, h:64 },
+  { key:'interprise', name:'USS ENTERPRISE NCC-1701', full:'James T. Kirk · Star Trek', color:0xd7dae0, speed:215, fireRate:150, legendary:true, w:66, h:80 },
+  { key:'millennium', name:'HALCÓN MILENARIO YT-1300', full:'Han Solo · Star Wars',    color:0xb9b5a8, speed:240, fireRate:165, legendary:true, w:88, h:88 }
 ];
 
 // ===== ITEMS =====
@@ -456,6 +468,76 @@ function gPoly(g, pts, fill, stroke, sw) {
   if (stroke!=null) { g.lineStyle(sw||1,stroke,0.9); g.strokePoints(pts,true); }
 }
 function gPts(arr){ return arr.map(p=>({x:p[0],y:p[1]})); }
+
+// ===== HELPERS DE DIBUJO REALISTA (degradados, cristales, cañones, motores) =====
+function mixC(a,b,f){
+  const ar=(a>>16)&255, ag=(a>>8)&255, ab=a&255;
+  const br=(b>>16)&255, bg=(b>>8)&255, bb=b&255;
+  return ((ar+((br-ar)*f))<<16)|((ag+((bg-ag)*f))<<8)|((ab+((bb-ab)*f))|0);
+}
+function centroidOf(pts){
+  let x=0,y=0; for(const p of pts){ x+=p.x; y+=p.y; }
+  return {x:x/pts.length, y:y/pts.length};
+}
+// Encierra un polígono hacia su centro (para apilar capas)
+function shrinkPts(pts, amt){
+  const c=centroidOf(pts);
+  return pts.map(p=>{
+    const dx=p.x-c.x, dy=p.y-c.y, d=Math.sqrt(dx*dx+dy*dy)||1;
+    const k=Math.max(0.04,(d-amt)/d);
+    return {x:c.x+dx*k, y:c.y+dy*k};
+  });
+}
+// Degradado direccional: capas anidadas oscuro->claro desplazadas hacia la luz (arriba-izq)
+function shadePoly(g, pts, dark, light, layers, lx, ly){
+  const n=layers||6, ux=(lx===undefined?-0.5:lx), uy=(ly===undefined?-0.9:ly);
+  for(let i=0;i<n;i++){
+    const f=i/(n-1);
+    const sp=shrinkPts(pts, i*1.35);
+    g.fillStyle(mixC(dark,light,f),1);
+    g.fillPoints(sp.map(p=>({x:p.x+ux*i, y:p.y+uy*i})), true);
+  }
+}
+// Borde de luz rasante + contorno exterior (definición nítida)
+function edgeLight(g, pts, hi, w){
+  g.lineStyle(w||1.2, hi, 0.75); g.strokePoints(pts, true);
+}
+// Cabina acristalada con reflejo especular
+function glassCockpit(g, x, y, w, h, tint){
+  g.fillStyle(0x050a12,1); g.fillEllipse(x,y,w,h);
+  g.fillStyle(mixC(tint||0x5fd0ff,0x000000,0.55),0.96); g.fillEllipse(x,y+0.6,w-2.6,h-2.6);
+  g.fillStyle(mixC(tint||0x5fd0ff,0xffffff,0.35),0.5); g.fillEllipse(x-w*0.16,y-h*0.18,w*0.36,h*0.3);
+  g.fillStyle(0xffffff,0.95); g.fillEllipse(x-w*0.2,y-h*0.24,Math.max(2,w*0.14),Math.max(2.4,h*0.12));
+}
+// Tobera de motor metálica con boca incandescente
+function engineNozzle(g, x, y, w, hot){
+  g.fillStyle(0x0a0e14,1); g.fillRoundedRect(x-w/2,y,w,7,2);
+  g.fillStyle(0x2b3440,1); g.fillRoundedRect(x-w/2+0.8,y+0.8,w-1.6,5,2);
+  g.fillStyle(0x525f70,1); g.fillRect(x-w/2+0.8,y+0.8,w-1.6,1.6);
+  g.fillStyle(hot||0xff7a1a,0.95); g.fillRect(x-w/2+1.4,y+4,w-2.8,2.6);
+  g.fillStyle(0xfff0b0,0.95); g.fillRect(x-w/2+2,y+4.6,w-4,1.4);
+}
+// Cañón: cuerpo metálico con luz superior y boca oscura (apunta hacia arriba)
+function cannonBarrel(g, x, y, len, bw, col){
+  const base=col||0x98a3b2;
+  g.fillStyle(0x080b10,1); g.fillRect(x-bw/2-0.7, y, bw+1.4, len);
+  g.fillStyle(mixC(base,0x000000,0.5),1); g.fillRect(x-bw/2, y, bw, len);
+  g.fillStyle(mixC(base,0xffffff,0.5),1); g.fillRect(x-bw/2, y, bw*0.42, len);
+  g.fillStyle(0x05080d,1); g.fillRect(x-bw/2+0.6, y+len-2.2, bw-1.2, 2.2);
+  g.fillStyle(0x2b3440,1); g.fillRect(x-bw/2, y+len*0.35, bw, 1.6);
+}
+// Panel de motor / rejilla (líneas finas de panel)
+function panelLines(g, x, y, w, h, col, rows){
+  g.lineStyle(0.8, col||0x000000, 0.35);
+  const r=rows||3;
+  for(let i=1;i<r;i++){ const yy=y+(h*i/r); g.lineBetween(x,yy,x+w,yy); }
+}
+// Polígono que aproxima un círculo (para aplicar degradados a discos)
+function circlePts(cx,cy,r,n){
+  const p=[]; n=n||20;
+  for(let i=0;i<n;i++){ const a=-Math.PI/2+i*Math.PI*2/n; p.push({x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r}); }
+  return p;
+}
 function enemyRadius(e){
   if (!e) return 16;
   if (e.bossR) return e.bossR;
@@ -538,36 +620,81 @@ function hsl2hex(h,s,l){
   const to=v=>Math.round((v+m)*255);
   return (to(r)<<16)|(to(g)<<8)|to(b);
 }
-const BOSS_NAMES=[
-  'Almirante Krell','Centinela Vyx','Acorazado Garan','Señora Nix','Devorador Krul',
-  'Prisma Ocular','Tormenta Ámbar','Sombra de Hierro','Oráculo Rojo','Coloso Ártico',
-  'Vengador Zeth','Nido Tóxico','Caparazón Negro','Titán de Obsidiana','Heraldo Vex',
-  'Abismo Plateado','Rey Cíclope','Lanza Estelar','Gusano Quásar','Guardián del Umbral',
-  'Emberalda Vorax','Ojo Carmesí','Mareas de Acero','Espina Púrpura','Ápice Kaldor',
-  'Corona de Espinas','Eclipse Vivo','Martillo Solar','Nébula Viva','Arquitecto Nyx',
-  'Silente Báltico','Fauce Sombría','Enjambre Rey','Anillo de Ruina','Verdugo Quark',
-  'Piélago Roto','Ascua Inmortal','Torre del Vacío','Ceniza Roja','Leviatán Krios',
-  'Yunque Cósmico','Lamento Férreo','Serpiente Ígnea','Bastión Cero','Vórtice Mudo',
-  'Corona Solar','Alfa Prisma','Muro de Dientes','Último Testigo','Coloso Primario',
-  'Nigromante Orbital','Fauces del Vacío','Rey del Eclipse','Abominación Khar','Fin de Todo',
-  'Devorador de Almas','Esperanza Negra','Juicio Final','El Despertar','SOBREORDEN SUPREMO'
+// ===== 60 NAVES ENEMIGAS FAMOSAS (PELÍCULAS, JUEGOS Y ANIMACIÓN) =====
+// n=nombre real  s=franquicia  a=arquetipo de dibujo  w/h=tamaño  c=color  e=acento  g=brillo
+const FAMOUS_BOSSES=[
+ // --- PELÍCULAS Y SERIES (0-23) ---
+ {n:'Star Destroyer Imperial', s:'Star Wars · Clase Imperial', a:'wedge',   w:240,h:272, c:0xb9bec6, e:0x8fd4ff, g:0x66ccff},
+ {n:'Cubo Borg',               s:'Star Trek',                  a:'cube',    w:214,h:214, c:0x1b232e, e:0x39ff8f, g:0x2bff77},
+ {n:'Destructor de Ciudades',  s:'Independence Day',           a:'saucer',  w:300,h:268, c:0x525a66, e:0xffd88a, g:0xffe9b0},
+ {n:'Trípode',                 s:'La Guerra de los Mundos',    a:'tripod',  w:206,h:252, c:0x6b5a48, e:0xff5a3a, g:0xff7a4a},
+ {n:'Basestar Cylon',          s:'Battlestar Galactica',       a:'cylon',   w:264,h:240, c:0x77808c, e:0xff4a4a, g:0xff6a6a},
+ {n:"Warbird D'deridex",       s:'Star Trek · Romulano',       a:'bird',    w:262,h:252, c:0x5f9b86, e:0x7fffc0, g:0x5affc0},
+ {n:'Bird of Prey Klingon',    s:'Star Trek',                  a:'bird',    w:224,h:204, c:0x6f6047, e:0xffc86a, g:0xffa050},
+ {n:'Lucrehulk',               s:'Star Wars · Clase Lucrehulk',a:'ring',    w:300,h:300, c:0x8f95a0, e:0x66ccff, g:0x33aaff},
+ {n:'Mano Invisible',          s:'Star Wars · Invisible Hand', a:'cruiser', w:246,h:262, c:0x9aa0aa, e:0x8fe0ff, g:0x55c8ff},
+ {n:'Supremacy',               s:'Star Wars · MC85',           a:'wedge',   w:304,h:250, c:0x4d525a, e:0xff8a5a, g:0xff6a3a},
+ {n:'Executor',                s:'Star Wars · Super Star Destroyer', a:'wedge', w:270,h:304, c:0xa8adb6, e:0x8fd4ff, g:0x66ccff},
+ {n:'Slave I',                 s:'Star Wars · Firespray-31',   a:'pod',     w:184,h:204, c:0x5f6a5a, e:0xffb06a, g:0xff8a4a},
+ {n:'Sith Infiltrator',        s:'Star Wars · Scimitar',       a:'cruiser', w:204,h:236, c:0x2a2f38, e:0xff5a5a, g:0xff3a3a},
+ {n:'USS Reliant',             s:'Star Trek · Clase Miranda',  a:'cruiser', w:224,h:224, c:0xd7dbe0, e:0xff7a6a, g:0x66ccff},
+ {n:'Nave Madre',              s:'District 9',                 a:'saucer',  w:300,h:232, c:0x2e343d, e:0xa0c8ff, g:0x7fb0ff},
+ {n:'Nave Madre Predator',     s:'Predator',                   a:'saucer',  w:262,h:244, c:0x3d444c, e:0x7fffe0, g:0x4affd0},
+ {n:'Dark Aster',              s:"Guardians of the Galaxy",    a:'organic', w:252,h:252, c:0x3a3f47, e:0x9a6aff, g:0x7a4aff},
+ {n:'Sanctuary II',            s:'Avengers: Endgame',          a:'cruiser', w:266,h:244, c:0x41464e, e:0xffb06a, g:0xff8a4a},
+ {n:'Leviatán Chitauri',       s:'The Avengers',               a:'serpent', w:224,h:304, c:0x56604f, e:0xffc86a, g:0xffa050},
+ {n:'Spaceball One',           s:'Spaceballs',                 a:'cruiser', w:244,h:224, c:0xdfe3e8, e:0xff5a5a, g:0xffaaaa},
+ {n:'USM Auriga',              s:'Alien: Resurrección',        a:'cruiser', w:244,h:204, c:0x99a2ac, e:0x8fd4ff, g:0x66ccff},
+ {n:'Truth and Reconciliation',s:'Halo · Clase Ket',           a:'bird',    w:252,h:244, c:0x7f6fb0, e:0x7fffe0, g:0x5affd0},
+ {n:'High Charity',            s:'Halo',                       a:'sphere',  w:262,h:262, c:0x8a5fc0, e:0xc0a0ff, g:0xa070ff},
+ {n:"Supercarrier Sh'wada",    s:'Halo · Covenant',            a:'bird',    w:264,h:252, c:0x6f5fa8, e:0x7fffe0, g:0x5affd0},
+ // --- VIDEOJUEGOS (24-43) ---
+ {n:'Big Core',                s:'Gradius',                    a:'core',    w:192,h:224, c:0x4a6fd0, e:0xff8a5a, g:0x66ccff},
+ {n:'Big Core MK-III',         s:'Gradius III',                a:'core',    w:204,h:236, c:0x2f8fd0, e:0x5affff, g:0x33e0ff},
+ {n:'Moai',                    s:'Gradius',                    a:'moai',    w:184,h:236, c:0x8d8577, e:0x7fffe0, g:0x5affd0},
+ {n:'Dobkeratops',             s:'R-Type',                     a:'organic', w:204,h:236, c:0xc4553f, e:0xffc96a, g:0xff7a5a},
+ {n:'Bydo',                    s:'R-Type · Imperio Bydo',      a:'organic', w:214,h:236, c:0x7a3f8a, e:0xff6ad0, g:0xd050ff},
+ {n:'Iron Nokana',             s:'Metal Slug',                 a:'tank',    w:234,h:194, c:0x6f7a52, e:0xffd06a, g:0xffaa44},
+ {n:'Big Shiee',               s:'Metal Slug 2',               a:'tank',    w:254,h:204, c:0x8a7d5f, e:0xffb04a, g:0xff9030},
+ {n:'Rugname',                 s:'Metal Slug · Nave Marciana',  a:'saucer',  w:264,h:234, c:0x7a4a3a, e:0xff8a5a, g:0xff6a3a},
+ {n:'Jupiter King',            s:'Metal Slug 3',               a:'sphere',  w:244,h:244, c:0x9a7a3a, e:0xffd06a, g:0xffb040},
+ {n:'Rootmars',                s:'Metal Slug 3',               a:'organic', w:234,h:244, c:0x7fc06a, e:0xff7a6a, g:0x5aff88},
+ {n:'Space Invaders Mothership',s:'Space Invaders',            a:'ufo',     w:236,h:176, c:0x39ff7a, e:0x9affc0, g:0x39ff7a},
+ {n:'Galaga Flagship',         s:'Galaga',                     a:'ufo',     w:226,h:176, c:0xd94a4a, e:0xffd06a, g:0xff6a6a},
+ {n:'Sovereign',               s:'Mass Effect · Reaper',       a:'reaper',  w:234,h:292, c:0x33353c, e:0xff3a3a, g:0xff2020},
+ {n:'Collector Cruiser',       s:'Mass Effect',                a:'cruiser', w:234,h:214, c:0x6a5a4a, e:0xffb06a, g:0xff9040},
+ {n:'Dreadnaught',             s:'Destiny',                    a:'cruiser', w:244,h:234, c:0x5a5347, e:0x9aff6a, g:0x6aff44},
+ {n:'Mothership Protoss',      s:'StarCraft',                  a:'ring',    w:262,h:262, c:0xd9b45a, e:0x8fd4ff, g:0xffe08a},
+ {n:'Andross',                 s:'Star Fox 64',                a:'sphere',  w:224,h:224, c:0x8a90a0, e:0xff5a5a, g:0xff8a8a},
+ {n:'Death Egg',               s:'Sonic the Hedgehog 2',       a:'planet',  w:264,h:264, c:0xb9bec6, e:0xff4a4a, g:0xff6a6a},
+ {n:'Space Colony Ark',        s:'Sonic Adventure 2',          a:'planet',  w:284,h:264, c:0x9aa4b0, e:0xffd06a, g:0xffe08a},
+ {n:'Aigaion',                 s:'Ace Combat 6',               a:'cruiser', w:266,h:214, c:0x5f6f7a, e:0x8fe0ff, g:0x66d0ff},
+ // --- ANIMACIÓN (44-58) ---
+ {n:'Sachiel',                 s:'Evangelion · 3er Ángel',     a:'angel',   w:204,h:234, c:0x2f4a5a, e:0xff8a5a, g:0xffa070},
+ {n:'Ramiel',                  s:'Evangelion · 5º Ángel',      a:'angel',   w:194,h:194, c:0x5aa8e8, e:0xc0e8ff, g:0x8fd4ff},
+ {n:'Zeruel',                  s:'Evangelion · 14º Ángel',     a:'angel',   w:224,h:254, c:0x9a8a76, e:0xffd06a, g:0xffb040},
+ {n:'Arael',                   s:'Evangelion · 15º Ángel',     a:'angel',   w:244,h:244, c:0xe8e2c0, e:0xfff0b0, g:0xffe080},
+ {n:'Neo Zeong',               s:'Gundam Unicorn · NZ-999',    a:'mecha',   w:284,h:304, c:0xb03428, e:0xff8a6a, g:0xff5a3a},
+ {n:'Psycho Gundam',           s:'Gundam · MRX-010',           a:'mecha',   w:244,h:284, c:0x343a52, e:0xff4a4a, g:0x6a6aff},
+ {n:'α Azieru',                s:'Gundam · NZ-333',            a:'mecha',   w:254,h:294, c:0xd7dade, e:0xff6a6a, g:0xffa0a0},
+ {n:'Evas de Producción Masiva',s:'Evangelion · Serie EVA',    a:'mecha',   w:224,h:274, c:0xe6e6ee, e:0xff4a6a, g:0xff8aa0},
+ {n:'Unicron',                 s:'Transformers',               a:'planet',  w:300,h:300, c:0xd8862a, e:0xffd06a, g:0xff9a2a},
+ {n:'Nemesis',                 s:'Transformers',               a:'cruiser', w:266,h:254, c:0x39486a, e:0x8fb0ff, g:0x5a80ff},
+ {n:'Anti-Spiral',             s:'Gurren Lagann',              a:'mecha',   w:244,h:244, c:0x2a2f3a, e:0xff5a5a, g:0xff3a3a},
+ {n:'Dai-Gunzan',              s:'Gurren Lagann',              a:'cruiser', w:266,h:234, c:0x6a7a5a, e:0xffc86a, g:0xffa050},
+ {n:'Nave de Freezer',         s:'Dragon Ball Z',              a:'pod',     w:204,h:224, c:0xd8d4cc, e:0xa06aff, g:0x8a4aff},
+ {n:'Queen Mama Chanteur',     s:'One Piece',                  a:'cruiser', w:266,h:234, c:0xd0577f, e:0xffd06a, g:0xff8ab0},
+ {n:'Malevolence',             s:'Star Wars · Clase Subjugator', a:'cruiser', w:276,h:244, c:0x5c6270, e:0xff6a6a, g:0xff4a4a},
+ // --- JEFE FINAL (59) ---
+ {n:'Estrella de la Muerte',   s:'Star Wars · Estación Superarma', a:'sphere', w:304,h:304, c:0x8f959d, e:0xff4a4a, g:0xff2a2a}
 ];
-const BOSS_FAM=['arrow','saucer','fortress','organic','star','wide','cruiser','orb'];
-const BOSS_SIZE={ arrow:[128,106], saucer:[150,82], fortress:[150,92], organic:[126,112], star:[132,112], wide:[152,88], cruiser:[152,102], orb:[122,112], overlord:[220,142] };
 function bossSpec(i){
+  const b=FAMOUS_BOSSES[i]||FAMOUS_BOSSES[0];
   const final=(i>=59);
-  const fam=final?'overlord':BOSS_FAM[i%8];
-  const variant=final?0:Math.floor(i/8);
-  const hue=(i*47)%360;
-  const color=hsl2hex(hue,0.5+((i%3)*0.12),0.42+((i%3)*0.06));
-  const dark=hsl2hex(hue,0.62,0.20);
-  const accent=hsl2hex((hue+45)%360,0.92,0.6);
-  const glow=hsl2hex((hue+180)%360,0.9,0.62);
-  const base=BOSS_SIZE[fam]||[140,90];
-  const w=base[0]+((i*5)%9)-4;
-  const h=base[1]+((i*3)%9)-4;
-  return { i, arch:fam, variant, name:BOSS_NAMES[i]||('JEFE '+(i+1)), color, dark, accent, glow, w, h,
-    wings:(i*7+3)%6, limbs:(i*5+1)%5, crown:(i*11+2)%6, eyes:final?3:(2+(i%4)), turrets:2+(i%4), final };
+  const grow=0.90+(i/59)*0.40;
+  return { i, arch:b.a, variant:i%5, name:b.n, sub:b.s, color:b.c, dark:shade(b.c,0.45),
+    accent:b.e, glow:b.g, w:Math.min(340,Math.round(b.w*grow)), h:Math.min(320,Math.round(b.h*grow)),
+    eyes:1, turrets:2, wings:0, limbs:0, crown:0, final, famous:true };
 }
 const BOSS_SPECS=Array.from({length:60},(_,i)=>bossSpec(i));
 
@@ -701,9 +828,1488 @@ function bossRings(g,s){
   }
 }
 const HULL_DRAW={ arrow:hullArrow, saucer:hullSaucer, fortress:hullFortress, organic:hullOrganic, star:hullStar, wide:hullWide, cruiser:hullCruiser, orb:hullOrb };
+// ===== DIBUJO DE LAS 60 NAVES FAMOSAS (lote A) =====
+// Convención: la proa apunta ABAJO (hacia el jugador) y los motores van ARRIBA.
+const FAMOUS_DRAW={
+  // Imperial Star Destroyer / Executor / Supremacy: cuña con espina, torre de mando y 3 motores
+  wedge(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.30),lo=mixC(dk,0x000000,0.35);
+    const hull=gPts([[cx,h-6],[w-6,h*0.34],[w-6,14],[cx+w*0.34,11],[cx,20],[cx-w*0.34,11],[6,14],[6,h*0.34]]);
+    shadePoly(g,hull,lo,hi,8,-0.5,-0.85);
+    gPoly(g,hull,null,OUT,2.6); edgeLight(g,hull,0xffffff,1.2);
+    // trincheras longitudinales
+    g.lineStyle(1,mixC(dk,0x000000,0.5),0.55);
+    for(let k=-4;k<=4;k++){ if(!k) continue;
+      g.lineBetween(cx+k*w*0.058,26,cx+k*w*0.016,h*0.84); }
+    g.lineStyle(0.8,hi,0.35);
+    for(let k=1;k<6;k++){ const y=30+k*(h*0.06), ch=Math.min(w*0.44,(w/2-10)*(1-(y-20)/(h-26))*1.6+6);
+      g.lineBetween(cx-ch,y,cx+ch,y); }
+    // espina central elevada
+    const spine=gPts([[cx,h*0.90],[cx+w*0.20,h*0.46],[cx+w*0.155,24],[cx-w*0.155,24],[cx-w*0.20,h*0.46]]);
+    shadePoly(g,spine,dk,hi,6,-0.4,-1.0); gPoly(g,spine,null,OUT,1.6);
+    g.lineStyle(0.9,mixC(dk,0x000000,0.4),0.5); g.lineBetween(cx,30,cx,h*0.86);
+    // torre de mando (fondo, parte trasera)
+    g.fillStyle(0x11151b,1); g.fillRect(cx-19,26,38,30);
+    g.fillStyle(mixC(c,0xffffff,0.35),1); g.fillRect(cx-17,28,34,26);
+    g.fillStyle(0x141a22,1); g.fillRect(cx-15,33,30,7);
+    g.fillStyle(s.e,0.9); g.fillRect(cx-13,34.5,26,4);
+    g.fillStyle(0xffffff,0.5); g.fillRect(cx-13,34.5,26,1.4);
+    g.fillStyle(0x2a3038,1); g.fillRect(cx-15,44,30,8);
+    // casetes de escudo esféricos
+    [-1,1].forEach(d=>{ const x=cx+d*10,y=62;
+      g.fillStyle(0x0b0f14,1); g.fillCircle(x,y,7.6);
+      g.fillStyle(0xc8ced6,1); g.fillCircle(x,y,6.6);
+      g.fillStyle(0xffffff,0.9); g.fillCircle(x-2,y-2.4,3);
+      g.fillStyle(0x6d7681,1); g.fillCircle(x+2.4,y+2.6,3.4);
+      g.lineStyle(1,0x141a22,0.8); g.strokeCircle(x,y,6.6); });
+    // 3 motores en la popa (arriba)
+    for(let k=-1;k<=1;k++){ const x=cx+k*w*0.185, rw=k?26:30;
+      g.fillStyle(0x080b10,1); g.fillRoundedRect(x-rw/2,5,rw,13,3.5);
+      g.fillStyle(0x2b323c,1); g.fillRoundedRect(x-rw/2+1.5,6,rw-3,11,3);
+      g.fillStyle(0x49c6ff,0.95); g.fillRoundedRect(x-rw/2+3,7,rw-6,9,3);
+      g.fillStyle(0xd9f4ff,0.95); g.fillRoundedRect(x-rw/2+6,8,rw-12,6,2.5);
+      haloEll(g,x,11,rw*0.8,9,0x49c6ff,0.5,2); }
+    // luces de casco
+    g.fillStyle(s.e,0.85);
+    for(let k=0;k<10;k++){ const y=40+k*(h*0.055), x=cx+(k%2?1:-1)*(w*0.30-(y/h)*w*0.24); g.fillCircle(x,y,1.5); }
+  },
+  // Cubo Borg: placas irregulares con nodos verdes
+  cube(g,s){
+    const w=s.w,h=s.h,x0=7,y0=7,wd=w-14,ht=h-14;
+    const q=gPts([[x0,y0],[x0+wd,y0],[x0+wd,y0+ht],[x0,y0+ht]]);
+    shadePoly(g,q,mixC(s.color,0x000000,0.35),mixC(s.color,0xffffff,0.30),7,-0.6,-0.8);
+    gPoly(g,q,null,OUT,3); edgeLight(g,q,0x9fb9ad,1.2);
+    const cols=[0.16,0.37,0.58,0.79], rows=[0.13,0.34,0.55,0.76,0.9];
+    g.lineStyle(1.6,0x070b10,0.9);
+    cols.forEach(f=>g.lineBetween(x0+wd*f,y0,x0+wd*f,y0+ht));
+    rows.forEach(f=>g.lineBetween(x0,y0+ht*f,x0+wd,y0+ht*f));
+    g.lineStyle(0.8,0x0e1620,0.8);
+    cols.forEach((f,i)=>{ const a=[0.25,0.6,0.35,0.75][i]||0.4;
+      g.lineBetween(x0+wd*f,y0+ht*a,x0+wd*(cols[i+1]||1),y0+ht*a); });
+    rows.forEach((f,i)=>{ const a=[0.3,0.5,0.2,0.6,0.4][i]||0.5;
+      g.lineBetween(x0+wd*a,y0+ht*f,x0+wd*a,y0+ht*(rows[i+1]||1)); });
+    // conductos de energía verdes
+    g.lineStyle(2,s.e,0.5);
+    g.lineBetween(x0+wd*0.06,y0+ht*0.42,x0+wd*0.5,y0+ht*0.42);
+    g.lineBetween(x0+wd*0.5,y0+ht*0.42,x0+wd*0.5,y0+ht*0.9);
+    g.lineBetween(x0+wd*0.62,y0+ht*0.1,x0+wd*0.62,y0+ht*0.55);
+    g.lineBetween(x0+wd*0.62,y0+ht*0.55,x0+wd*0.95,y0+ht*0.55);
+    // bloque central elevado
+    const cb=gPts([[x0+wd*0.36,y0+ht*0.36],[x0+wd*0.64,y0+ht*0.36],[x0+wd*0.64,y0+ht*0.64],[x0+wd*0.36,y0+ht*0.64]]);
+    shadePoly(g,cb,0x101820,0x39546a,5,-0.5,-0.9); gPoly(g,cb,null,0x0a0f14,2);
+    // nodos
+    const nodes=[[0.24,0.22],[0.5,0.2],[0.74,0.3],[0.2,0.5],[0.82,0.52],[0.3,0.72],[0.6,0.78],[0.85,0.82],[0.45,0.9],[0.14,0.86]];
+    nodes.forEach(n=>{ const x=x0+wd*n[0],y=y0+ht*n[1];
+      g.fillStyle(0x04120b,1); g.fillCircle(x,y,5.4);
+      g.fillStyle(s.e,0.95); g.fillCircle(x,y,3.4);
+      g.fillStyle(0xe4fff0,0.95); g.fillCircle(x-1,y-1,1.5);
+      haloEll(g,x,y,11,11,s.e,0.35,2); });
+    g.fillStyle(s.e,0.75); g.fillCircle(x0+wd*0.5,y0+ht*0.5,7);
+    g.fillStyle(0xf0fff7,0.9); g.fillCircle(x0+wd*0.5,y0+ht*0.5,3.4);
+  },
+  // Esferas: Estrella de la Muerte / High Charity / Jupiter King / Andross
+  sphere(g,s){
+    const w=s.w,h=s.h,cx=w/2,cy=h/2,r=Math.min(w,h)/2-5,c=s.color,dk=s.dark,st={22:'charity',32:'jupiter',40:'andross'}[s.i]||'deathstar';
+    const ball=circlePts(cx,cy,r);
+    shadePoly(g,ball,dk,mixC(c,0xffffff,0.42),8,-0.55,-0.85);
+    gPoly(g,ball,null,OUT,2.6); edgeLight(g,ball,0xffffff,1.2);
+    const chord=y=>{ const dy=y-cy, v=r*r-dy*dy; if(v<=0) return null; const d=Math.sqrt(v); return [cx-d,cx+d]; };
+    if(st==='deathstar'){
+      // rejilla de paneles + trinchera ecuatorial + platillo superarma
+      g.lineStyle(0.8,mixC(dk,0x000000,0.4),0.5);
+      for(let k=-4;k<=4;k++){ const ln=chord(cy+k*r*0.19); if(ln) g.lineBetween(ln[0],cy+k*r*0.19,ln[1],cy+k*r*0.19); }
+      for(let k=-3;k<=3;k++){ const x=cx+k*r*0.26, v=r*r-(x-cx)*(x-cx); if(v<=0) continue; const d=Math.sqrt(v);
+        g.lineBetween(x,cy-d,x,cy+d); }
+      const t1=chord(cy+r*0.10), t2=chord(cy+r*0.20);
+      g.lineStyle(3,0x1a1e24,0.95); if(t1) g.lineBetween(t1[0],cy+r*0.10,t1[1],cy+r*0.10);
+      g.lineStyle(2,0x0a0d12,0.9); if(t2) g.lineBetween(t2[0],cy+r*0.20,t2[1],cy+r*0.20);
+      g.fillStyle(0x8f979f,0.9);
+      for(let k=0;k<26;k++){ const a=k*2.399, rr=r*(0.35+((k*37)%50)/110); const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+        if((x-cx)*(x-cx)+(y-cy)*(y-cy)<r*r*0.92) g.fillCircle(x,y,1.3); }
+      // platillo superarma
+      const dx=cx-r*0.34, dy=cy-r*0.36, dr=r*0.30;
+      g.fillStyle(0x14181e,1); g.fillCircle(dx,dy,dr);
+      g.lineStyle(2.4,0x5c646d,1); g.strokeCircle(dx,dy,dr);
+      g.lineStyle(1.6,0x454c55,1); g.strokeCircle(dx,dy,dr*0.72);
+      g.lineStyle(1.2,0x454c55,1); g.strokeCircle(dx,dy,dr*0.45);
+      g.fillStyle(0x0b0e13,1); g.fillCircle(dx,dy,dr*0.3);
+      g.fillStyle(s.e,0.85); g.fillCircle(dx,dy,dr*0.18);
+      g.fillStyle(0xffe6e6,0.9); g.fillCircle(dx,dy,dr*0.09);
+      haloEll(g,dx,dy,dr*0.9,dr*0.9,s.e,0.3,3);
+      for(let k=0;k<8;k++){ const a=k*Math.PI/4, x=dx+Math.cos(a)*dr*0.85,y=dy+Math.sin(a)*dr*0.85; g.fillStyle(s.e,0.8); g.fillCircle(x,y,1.6); }
+    } else if(st==='charity'){
+      // cúpula de High Charity con espinas y portal central
+      g.lineStyle(1,mixC(dk,0x000000,0.35),0.6);
+      for(let k=1;k<5;k++) g.strokeCircle(cx,cy,r*(0.86-k*0.14));
+      for(let k=0;k<10;k++){ const a=k*Math.PI/5, d=Math.sqrt(r*r-(Math.sin(a)*r*0.98)*(Math.sin(a)*r*0.98));
+        g.lineBetween(cx+Math.cos(a)*r*0.3,cy+Math.sin(a)*r*0.3,cx+Math.cos(a)*r*0.96,cy+Math.sin(a)*r*0.96); }
+      // espinas exteriores
+      for(let k=0;k<12;k++){ const a=k*Math.PI/6;
+        gPoly(g,gPts([[cx+Math.cos(a)*r*0.92,cy+Math.sin(a)*r*0.92],[cx+Math.cos(a-0.1)*r*1.06,cy+Math.sin(a-0.1)*r*1.06],[cx+Math.cos(a+0.1)*r*1.06,cy+Math.sin(a+0.1)*r*1.06]]),mixC(c,0x000000,0.3),OUT,1.4); }
+      // aguja central
+      g.fillStyle(mixC(c,0x000000,0.4),1); g.fillTriangle(cx,cy-r*0.75,cx-r*0.13,cy+r*0.15,cx+r*0.13,cy+r*0.15);
+      g.fillStyle(s.e,0.9); g.fillCircle(cx,cy+r*0.05,r*0.2);
+      g.fillStyle(0xffffff,0.9); g.fillCircle(cx,cy+r*0.05,r*0.1);
+      haloEll(g,cy+r*0.05?cx:cx,cy+r*0.05,r*0.5,r*0.5,s.e,0.4,3);
+    } else if(st==='jupiter'){
+      // Jupiter King: esfera dorada con corona y rostro marciano
+      g.lineStyle(1.6,0x6b4d12,0.7); g.strokeCircle(cx,cy,r*0.78); g.strokeCircle(cx,cy,r*0.55);
+      for(let k=0;k<14;k++){ const a=k*Math.PI/7;
+        g.lineBetween(cx+Math.cos(a)*r*0.55,cy+Math.sin(a)*r*0.55,cx+Math.cos(a)*r*0.78,cy+Math.sin(a)*r*0.78); }
+      for(let k=0;k<9;k++){ const a=k*Math.PI*2/9-Math.PI/2;
+        gPoly(g,gPts([[cx+Math.cos(a-0.16)*r*0.86,cy+Math.sin(a-0.16)*r*0.86],[cx+Math.cos(a)*r*1.1,cy+Math.sin(a)*r*1.1],[cx+Math.cos(a+0.16)*r*0.86,cy+Math.sin(a+0.16)*r*0.86]]),mixC(s.color,0xffffff,0.3),0x3a2a06,1.4); }
+      // rostro
+      g.fillStyle(0x120c02,1); g.fillEllipse(cx-r*0.24,cy+r*0.04,r*0.30,r*0.24);
+      g.fillEllipse(cx+r*0.24,cy+r*0.04,r*0.30,r*0.24);
+      g.fillStyle(s.e,0.95); g.fillEllipse(cx-r*0.24,cy+r*0.05,r*0.17,r*0.13);
+      g.fillEllipse(cx+r*0.24,cy+r*0.05,r*0.17,r*0.13);
+      g.fillStyle(0xffffff,0.85); g.fillEllipse(cx-r*0.27,cy,r*0.07,r*0.06);
+      g.fillEllipse(cx+r*0.21,cy,r*0.07,r*0.06);
+      g.fillStyle(0x120c02,1); g.fillEllipse(cx,cy+r*0.36,r*0.34,r*0.16);
+      g.fillStyle(s.e,0.6); g.fillEllipse(cx,cy+r*0.36,r*0.22,r*0.08);
+    } else {
+      // Andross: cabeza robótica
+      g.fillStyle(0x14181f,1); g.fillRoundedRect(cx-r*0.72,cy-r*0.62,r*1.44,r*1.3,r*0.34);
+      shadePoly(g,circlePts(cx,cy,r*0.66),mixC(dk,0x000000,0.2),mixC(c,0xffffff,0.35),5,-0.5,-0.9);
+      g.fillStyle(0x1b2027,1); g.fillRoundedRect(cx-r*0.78,cy-r*0.18,r*0.28,r*0.5,r*0.1);
+      g.fillRoundedRect(cx+r*0.50,cy-r*0.18,r*0.28,r*0.5,r*0.1);
+      // ojos rojos
+      [-1,1].forEach(d=>{ g.fillStyle(0x160608,1); g.fillEllipse(cx+d*r*0.3,cy-r*0.08,r*0.34,r*0.26);
+        g.fillStyle(s.e,0.95); g.fillEllipse(cx+d*r*0.3,cy-r*0.06,r*0.20,r*0.14);
+        g.fillStyle(0xffffff,0.9); g.fillEllipse(cx+d*r*0.27,cy-r*0.11,r*0.08,r*0.06); });
+      // mandíbula con rejilla
+      g.fillStyle(0x2a3038,1); g.fillRoundedRect(cx-r*0.42,cy+r*0.22,r*0.84,r*0.36,r*0.12);
+      g.lineStyle(1.4,0x11151b,0.9);
+      for(let k=1;k<5;k++) g.lineBetween(cx-r*0.38,cy+r*0.22+k*r*0.07,cx+r*0.38,cy+r*0.22+k*r*0.07);
+      g.lineStyle(1.6,0x0d1117,1); g.strokeRoundedRect(cx-r*0.72,cy-r*0.62,r*1.44,r*1.3,r*0.34);
+      g.fillStyle(0x7f8792,1); g.fillCircle(cx-r*0.62,cy+r*0.42,r*0.10); g.fillCircle(cx+r*0.62,cy+r*0.42,r*0.10);
+    }
+  },
+  // Planetas/estaciones: Unicron / Death Egg / Space Colony Ark
+  planet(g,s){
+    const w=s.w,h=s.h,cx=w/2,cy=h/2,c=s.color,dk=s.dark,st={41:'egg',42:'ark'}[s.i]||'unicron';
+    if(st==='ark'){
+      // Space Colony Ark: media luna con eje central y cúpula
+      const R=Math.min(w,h)/2-6;
+      const cres=[[cx-R*0.18,cy-R],[cx+R*0.55,cy-R*0.86],[cx+R*0.95,cy-R*0.3],[cx+R*0.95,cy+R*0.34],[cx+R*0.5,cy+R*0.9],[cx-R*0.2,cy+R],[cx-R*0.62,cy+R*0.62],[cx-R*0.62,cy-R*0.62]];
+      shadePoly(g,gPts(cres),dk,mixC(c,0xffffff,0.4),7,-0.5,-0.85);
+      gPoly(g,gPts(cres),null,OUT,2.6); edgeLight(g,gPts(cres),0xffffff,1.1);
+      g.lineStyle(1,mixC(dk,0x000000,0.4),0.6);
+      for(let k=1;k<7;k++){ const t=k/7;
+        g.lineBetween(cx-R*0.6+R*0.1*t,cy-R*0.66,cx-R*0.55+R*0.4*t,cy+R*0.72); }
+      // eje / spina central
+      const sp=gPts([[cx+R*0.06,cy-R*1.0],[cx+R*0.42,cy-R*0.72],[cx+R*0.46,cy+R*0.72],[cx+R*0.1,cy+R*1.0]]);
+      shadePoly(g,sp,dk,mixC(c,0xffffff,0.5),5,-0.4,-0.9); gPoly(g,sp,null,OUT,1.8);
+      // cúpula biodomo
+      g.fillStyle(0x0c1418,1); g.fillEllipse(cx+R*0.06,cy+R*0.2,R*0.7,R*0.5);
+      g.fillStyle(0x2e8f6a,0.9); g.fillEllipse(cx+R*0.06,cy+R*0.2,R*0.58,R*0.4);
+      g.fillStyle(0x8ff0c0,0.7); g.fillEllipse(cx-R*0.04,cy+R*0.12,R*0.24,R*0.16);
+      g.fillStyle(0xdff8ec,0.9); g.fillEllipse(cx-R*0.08,cy+R*0.08,R*0.10,R*0.07);
+      // antenas y luces
+      g.lineStyle(2,mixC(c,0xffffff,0.3),1); g.lineBetween(cx+R*0.26,cy-R*0.86,cx+R*0.36,cy-R*1.04);
+      g.fillStyle(s.e,0.9); g.fillCircle(cx+R*0.36,cy-R*1.05,3);
+      g.fillStyle(s.e,0.85);
+      for(let k=0;k<12;k++){ const a=k*Math.PI/6; g.fillCircle(cx-R*0.34+Math.cos(a)*R*0.42,cy+Math.sin(a)*R*0.5,1.6); }
+      return;
+    }
+    if(st==='egg'){
+      // Death Egg: casco en huevo con banda roja y motores
+      const rx=w/2-6, ry=h/2-6, egg=[];
+      for(let i=0;i<26;i++){ const a=-Math.PI/2+i*Math.PI*2/26, k=1-0.22*Math.sin(a+Math.PI/2);
+        egg.push({x:cx+Math.cos(a)*rx*k, y:cy+Math.sin(a)*ry}); }
+      shadePoly(g,egg,dk,mixC(c,0xffffff,0.4),7,-0.5,-0.85);
+      gPoly(g,egg,null,OUT,2.6); edgeLight(g,egg,0xffffff,1.1);
+      // banda roja ecuatorial
+      g.fillStyle(0xb8241f,0.9); g.fillEllipse(cx,cy+ry*0.06,rx*1.94,ry*0.20);
+      g.fillStyle(0x14181e,0.75); g.fillEllipse(cx,cy+ry*0.06,rx*1.94,ry*0.07);
+      // casco superior e inferior
+      g.lineStyle(1.4,mixC(dk,0x000000,0.4),0.7);
+      g.strokeEllipse(cx,cy-ry*0.34,rx*1.1,ry*0.44);
+      g.strokeEllipse(cx,cy+ry*0.46,rx*1.2,ry*0.34);
+      // cúpula amarilla (huevo de Eggman)
+      g.fillStyle(0x12161c,1); g.fillEllipse(cx,cy-ry*0.44,rx*0.62,ry*0.30);
+      g.fillStyle(0xf2c531,0.95); g.fillEllipse(cx,cy-ry*0.44,rx*0.52,ry*0.23);
+      g.fillStyle(0xfff2b0,0.9); g.fillEllipse(cx-rx*0.1,cy-ry*0.50,rx*0.20,ry*0.09);
+      // puertos y remaches
+      g.fillStyle(0x1a1f26,0.9);
+      for(let k=0;k<16;k++){ const a=k*Math.PI/8, x=cx+Math.cos(a)*rx*0.74, y=cy+Math.sin(a)*ry*0.74; g.fillCircle(x,y,2.4); }
+      g.fillStyle(s.e,0.85);
+      for(let k=0;k<10;k++){ const a=k*Math.PI/5+0.3; g.fillCircle(cx+Math.cos(a)*rx*0.52,cy+Math.sin(a)*ry*0.5+ry*0.3,1.8); }
+      // motores arriba
+      for(let k=-1;k<=1;k++){ const x=cx+k*rx*0.5;
+        g.fillStyle(0x0a0e14,1); g.fillRoundedRect(x-9,cy-ry-2,18,12,3);
+        g.fillStyle(0xff7a3a,0.95); g.fillRoundedRect(x-7,cy-ry,14,8,3);
+        g.fillStyle(0xffe6b0,0.95); g.fillRoundedRect(x-5,cy-ry+1.5,10,4,2);
+        haloEll(g,x,cy-ry+3,20,14,0xff7a3a,0.5,2); }
+      return;
+    }
+    // Unicron: esfera con cuernos, placas y rostro
+    const r=Math.min(w,h)/2-10, ball=circlePts(cx,cy,r);
+    shadePoly(g,ball,dk,mixC(c,0xffffff,0.42),8,-0.55,-0.85);
+    gPoly(g,ball,null,OUT,2.8);
+    // cuernos
+    [[-1,-0.75],[1,-0.75],[-1,0.15],[1,0.15]].forEach(d=>{
+      const bx=cx+d[0]*r*0.9, by=cy+d[1]*r*0.9;
+      gPoly(g,gPts([[bx,by-r*0.10],[bx+d[0]*r*0.62,by-d[1]*r*0.30-r*0.22],[bx+d[0]*r*0.5,by+ (d[1]>0?r*0.30:-r*0.02)],[bx,by+r*0.12]]),mixC(c,0xffffff,0.25),OUT,2); });
+    // placas
+    g.lineStyle(1.4,mixC(dk,0x000000,0.45),0.7);
+    g.strokeCircle(cx,cy,r*0.78); g.strokeCircle(cx,cy,r*0.5);
+    for(let k=0;k<8;k++){ const a=k*Math.PI/4;
+      g.lineBetween(cx+Math.cos(a)*r*0.5,cy+Math.sin(a)*r*0.5,cx+Math.cos(a)*r*0.78,cy+Math.sin(a)*r*0.78); }
+    // ojos / rostro de Unicron
+    g.fillStyle(0x160b02,1); g.fillEllipse(cx-r*0.30,cy-r*0.10,r*0.34,r*0.26);
+    g.fillEllipse(cx+r*0.30,cy-r*0.10,r*0.34,r*0.26);
+    g.fillStyle(s.e,0.95); g.fillEllipse(cx-r*0.30,cy-r*0.08,r*0.20,r*0.14);
+    g.fillEllipse(cx+r*0.30,cy-r*0.08,r*0.20,r*0.14);
+    g.fillStyle(0xfff3d0,0.9); g.fillEllipse(cx-r*0.33,cy-r*0.13,r*0.08,r*0.06);
+    g.fillEllipse(cx+r*0.27,cy-r*0.13,r*0.08,r*0.06);
+    g.fillStyle(0x160b02,1); g.fillEllipse(cx,cy+r*0.42,r*0.5,r*0.24);
+    g.lineStyle(3,0x2a1402,1); g.strokeEllipse(cx,cy+r*0.42,r*0.5,r*0.24);
+    g.lineStyle(1.4,0x402005,0.9);
+    for(let k=1;k<7;k++) g.lineBetween(cx-r*0.4+k*r*0.11,cy+r*0.30,cx-r*0.4+k*r*0.11,cy+r*0.54);
+    haloEll(g,cy?cx:cx,cy,r*1.05,r*1.05,s.g,0.18,3);
+  },
+  // Platillos: ID4 / District 9 / Predator / Rugname
+  saucer(g,s){
+    const w=s.w,h=s.h,cx=w/2,cy=h/2,c=s.color,dk=s.dark,rx=w/2-6,ry=h/2-6;
+    const st={14:'d9',15:'pred',31:'rug'}[s.i]||'id4';
+    // casco
+    const body=circlePts(cx,cy,1); // placeholder para gradiente de elipse
+    const ell2=[]; for(let i=0;i<30;i++){ const a=-Math.PI/2+i*Math.PI*2/30; ell2.push({x:cx+Math.cos(a)*rx,y:cy+Math.sin(a)*ry}); }
+    shadePoly(g,ell2,mixC(dk,0x000000,0.3),mixC(c,0xffffff,0.38),7,-0.55,-0.85);
+    gPoly(g,ell2,null,OUT,2.6); edgeLight(g,ell2,0xffffff,1.2);
+    // anillos
+    g.lineStyle(2,mixC(dk,0x000000,0.4),0.75); g.strokeEllipse(cx,cy,rx*0.86,ry*0.86);
+    g.lineStyle(1.2,mixC(c,0xffffff,0.3),0.5); g.strokeEllipse(cx,cy,rx*0.66,ry*0.66);
+    // luces del borde
+    for(let k=0;k<18;k++){ const a=k*Math.PI/9, x=cx+Math.cos(a)*rx*0.9, y=cy+Math.sin(a)*ry*0.9;
+      g.fillStyle(k%3?s.e:0xffffff,0.9); g.fillCircle(x,y,2.2); }
+    // cúpula / maw central
+    if(st==='id4'){
+      // 3 columnas bajo el platillo + maw superarma
+      g.fillStyle(0x0e1116,1); g.fillEllipse(cx,cy,rx*0.5,ry*0.5);
+      g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillEllipse(cx,cy-ry*0.06,rx*0.42,ry*0.4);
+      g.fillStyle(0x12161c,1); g.fillEllipse(cx,cy+ry*0.06,rx*0.30,ry*0.26);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx,cy+ry*0.07,rx*0.18,ry*0.15);
+      g.fillStyle(0xfff4d6,0.95); g.fillEllipse(cx,cy+ry*0.08,rx*0.09,ry*0.07);
+      haloEll(g,cx,cy+ry*0.07,rx*0.5,ry*0.45,s.e,0.4,3);
+      // surcos radiales
+      g.lineStyle(1.2,mixC(dk,0x000000,0.4),0.55);
+      for(let k=0;k<12;k++){ const a=k*Math.PI/6; g.lineBetween(cx+Math.cos(a)*rx*0.5,cy+Math.sin(a)*ry*0.5,cx+Math.cos(a)*rx*0.96,cy+Math.sin(a)*ry*0.96); }
+    } else if(st==='pred'){
+      // orgánico:克 Gdk con tentáculos y boca
+      g.fillStyle(mixC(c,0x000000,0.3),1); g.fillEllipse(cx,cy,rx*0.7,ry*0.66);
+      g.lineStyle(1.6,mixC(c,0xffffff,0.25),0.7); g.strokeEllipse(cx,cy,rx*0.7,ry*0.66);
+      g.fillStyle(0x0a0e12,1); g.fillEllipse(cx,cy+ry*0.1,rx*0.34,ry*0.3);
+      g.fillStyle(s.e,0.85); g.fillEllipse(cx,cy+ry*0.12,rx*0.2,ry*0.17);
+      g.lineStyle(2.4,mixC(dk,0x000000,0.3),0.9);
+      for(let k=0;k<7;k++){ const a=Math.PI*0.15+k*Math.PI*0.7/6;
+        const x1=cx+Math.cos(a)*rx*0.72,y1=cy+Math.sin(a)*ry*0.72;
+        g.lineBetween(x1,y1,cx+Math.cos(a)*rx*1.0,cy+Math.sin(a)*ry*1.06);
+        g.lineBetween(cx+Math.cos(a)*rx*1.0,cy+Math.sin(a)*ry*1.06,cx+Math.cos(a-0.3)*rx*1.06,cy+Math.sin(a-0.3)*ry*1.14); }
+      g.fillStyle(s.e,0.8);
+      for(let k=0;k<8;k++){ const a=k*Math.PI/4+0.2; g.fillCircle(cx+Math.cos(a)*rx*0.5,cy+Math.sin(a)*ry*0.5,2.4); }
+    } else if(st==='rug'){
+      // Rugname: nave marciana con ojo/rostro
+      g.fillStyle(mixC(dk,0x000000,0.25),1); g.fillEllipse(cx,cy-ry*0.04,rx*0.78,ry*0.6);
+      g.lineStyle(2,mixC(c,0xffffff,0.3),0.8); g.strokeEllipse(cx,cy-ry*0.04,rx*0.78,ry*0.6);
+      g.fillStyle(0x140a06,1); g.fillEllipse(cx,cy-ry*0.06,rx*0.44,ry*0.34);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx,cy-ry*0.04,rx*0.3,ry*0.22);
+      g.fillStyle(0xfff0e0,0.95); g.fillEllipse(cx-rx*0.06,cy-ry*0.1,rx*0.1,ry*0.08);
+      g.fillStyle(0x140a06,1); g.fillEllipse(cx,cy+ry*0.34,rx*0.34,ry*0.2);
+      g.lineStyle(1.6,0x2a140c,1);
+      for(let k=1;k<6;k++) g.lineBetween(cx-rx*0.28+k*rx*0.1,cy+ry*0.26,cx-rx*0.28+k*rx*0.1,cy+ry*0.44);
+      g.fillStyle(s.e,0.85);
+      for(let k=0;k<6;k++){ const a=k*Math.PI/3; g.fillCircle(cx+Math.cos(a)*rx*0.74,cy+Math.sin(a)*ry*0.74,2.6); }
+    }
+    // estructura inferior asomando por abajo
+    g.fillStyle(mixC(dk,0x000000,0.4),0.95); g.fillEllipse(cx,cy+ry*0.5,rx*0.6,ry*0.5);
+    g.fillStyle(mixC(c,0xffffff,0.2),1); g.fillEllipse(cx,cy+ry*0.44,rx*0.44,ry*0.34);
+    g.fillStyle(s.e,0.75); g.fillEllipse(cx,cy+ry*0.5,rx*0.18,ry*0.14);
+  },
+  // Anillos: Lucrehulk (Federación) y Mothership Protoss
+  ring(g,s){
+    const w=s.w,h=s.h,cx=w/2,cy=h/2,c=s.color,dk=s.dark,R=Math.min(w,h)/2-6,r1=R*0.60;
+    const K=30, protoss={39:1}[s.i];
+    // segmentos del anillo (dejan hueco real)
+    for(let k=0;k<K;k++){
+      const a0=k*Math.PI*2/K+0.012, a1=(k+1)*Math.PI*2/K-0.012;
+      const p=[{x:cx+Math.cos(a0)*R,y:cy+Math.sin(a0)*R},{x:cx+Math.cos(a1)*R,y:cy+Math.sin(a1)*R},
+               {x:cx+Math.cos(a1)*r1,y:cy+Math.sin(a1)*r1},{x:cx+Math.cos(a0)*r1,y:cy+Math.sin(a0)*r1}];
+      const f=(Math.sin((a0+a1)/2-Math.PI/2)+1)/2;
+      g.fillStyle(mixC(mixC(dk,0x000000,0.25),mixC(c,0xffffff,0.45),f*0.85),1);
+      g.fillPoints(p,true);
+      g.lineStyle(1.1,OUT,0.75); g.strokePoints(p,true);
+    }
+    // nervios radiales
+    g.lineStyle(2.2,mixC(c,0xffffff,0.3),0.9);
+    for(let k=0;k<12;k++){ const a=k*Math.PI/6;
+      g.lineBetween(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1,cx+Math.cos(a)*R,cy+Math.sin(a)*R); }
+    // nucleo central
+    const core=circlePts(cx,cy,r1*0.68);
+    shadePoly(g,core,dk,mixC(c,0xffffff,0.4),6,-0.5,-0.85);
+    gPoly(g,core,null,OUT,2.4);
+    if(protoss){
+      g.lineStyle(2,0xfff0c0,0.6); g.strokeCircle(cx,cy,r1*0.5);
+      g.fillStyle(s.e,0.9); g.fillCircle(cx,cy,r1*0.30);
+      g.fillStyle(0xffffff,0.95); g.fillCircle(cx,cy,r1*0.16);
+      haloEll(g,cy?cx:cx,cy,r1*0.9,r1*0.9,s.g,0.4,3);
+      g.fillStyle(0xffe9a8,0.9);
+      for(let k=0;k<8;k++){ const a=k*Math.PI/4+Math.PI/8; g.fillCircle(cx+Math.cos(a)*r1*0.86,cy+Math.sin(a)*r1*0.86,3); }
+    } else {
+      // esfera de control de la Lucrehulk
+      g.fillStyle(0x0b0f14,1); g.fillCircle(cx,cy,r1*0.72);
+      g.fillStyle(mixC(c,0xffffff,0.2),1); g.fillCircle(cx,cy,r1*0.62);
+      g.fillStyle(mixC(c,0xffffff,0.5),1); g.fillCircle(cx-r1*0.16,cy-r1*0.2,r1*0.3);
+      g.fillStyle(0x141a22,1); g.fillRoundedRect(cx-r1*0.3,cy-r1*0.16,r1*0.6,r1*0.3,4);
+      g.fillStyle(s.e,0.85); g.fillRect(cx-r1*0.24,cy-r1*0.1,r1*0.48,r1*0.12);
+      g.lineStyle(1.4,0x0d1117,0.9); g.strokeCircle(cx,cy,r1*0.62);
+    }
+    // luces de aro
+    g.fillStyle(s.e,0.9);
+    for(let k=0;k<24;k++){ const a=k*Math.PI/12, rr=(R+r1)/2; g.fillCircle(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,2.0); }
+    // motores en la parte superior del aro
+    for(let k=-1;k<=1;k++){ const a=-Math.PI/2+k*0.42;
+      const x=cx+Math.cos(a)*rr0(R,r1), y=cy+Math.sin(a)*rr0(R,r1);
+      haloEll(g,x,y,16,12,0x8fd4ff,0.5,2); }
+    function rr0(A,B){ return (A+B)/2; }
+  },
+  // Basestar Cylon: dos lóbulos con ojo rojo escáner
+  cylon(g,s){
+    const w=s.w,h=s.h,cx=w/2,cy=h/2,c=s.color,dk=s.dark,rx=w/2-6,ry=h/2-6;
+    const lobe=(dir)=>{
+      const pts=[];
+      for(let i=0;i<=20;i++){ const a=-Math.PI/2+i*Math.PI/20; pts.push({x:cx+Math.cos(a)*rx*0.5,y:cy+dir*Math.sin(a)*ry}); }
+      for(let i=0;i<=20;i++){ const a=Math.PI/2+i*Math.PI/20; pts.push({x:cx+Math.cos(a)*rx*0.98,y:cy+dir*Math.sin(a)*ry*0.98}); }
+      return pts;
+    };
+    [-1,1].forEach(dir=>{
+      const p=lobe(dir);
+      shadePoly(g,p,dk,mixC(c,0xffffff,0.4),6,-0.5,-0.85);
+      g.lineStyle(2.6,OUT,0.95); g.strokePoints(p,true);
+      edgeLight(g,p,0xffffff,1);
+      // nervios
+      g.lineStyle(1.4,mixC(dk,0x000000,0.4),0.7);
+      for(let k=1;k<6;k++){ const a=k*Math.PI/6;
+        g.lineBetween(cx,cy,cx+Math.cos(a-Math.PI/2)*rx*0.9*1,cy+dir*Math.sin(a-Math.PI/2)*ry*0.9); }
+      for(let k=1;k<4;k++) g.strokeEllipse(cx,cy+dir*ry*0.12,rx*0.9*(1-k*0.16),ry*(0.9-k*0.2));
+      // bandas de placas
+      g.lineStyle(1,mixC(c,0xffffff,0.35),0.45);
+      for(let k=1;k<7;k++) g.lineBetween(cx-rx*0.9+k*rx*0.24,cy+dir*ry*0.1,cx-rx*0.7+k*rx*0.24,cy+dir*ry*0.86);
+    });
+    // cintura central
+    g.fillStyle(0x12161c,1); g.fillRect(cx-rx*0.5,cy-ry*0.14,rx,ry*0.28);
+    g.fillStyle(mixC(c,0x000000,0.3),1); g.fillRect(cx-rx*0.46,cy-ry*0.1,rx*0.92,ry*0.2);
+    // ojo rojo escáner
+    g.fillStyle(0x0a0608,1); g.fillEllipse(cx,cy,rx*0.6,ry*0.10);
+    g.fillStyle(s.e,0.95); g.fillEllipse(cx,cy,rx*0.5,ry*0.055);
+    g.fillStyle(0xffd0d0,0.95); g.fillEllipse(cx-rx*0.1,cy,rx*0.14,ry*0.03);
+    haloEll(g,cx,cy,rx*0.7,ry*0.3,s.e,0.4,3);
+    // motores arriba
+    for(let k=-1;k<=1;k++){ const x=cx+k*rx*0.4;
+      g.fillStyle(0x0a0e14,1); g.fillRoundedRect(x-11,3,22,10,3);
+      g.fillStyle(0x59c8ff,0.95); g.fillRoundedRect(x-9,4.5,18,7,3);
+      haloEll(g,x,9,22,12,0x59c8ff,0.5,2); }
+  },
+  // ===== CRUCEROS (13 naves): miranda / capital / warship / wing / industrial =====
+  cruiser(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    const st={8:'capital',17:'capital',53:'capital',38:'warship',55:'warship',57:'warship',58:'warship',
+              19:'wing',43:'wing',20:'indus',37:'indus',12:'indus'}[s.i]||'miranda';
+    if(st==='miranda'){
+      // USS Reliant (Clase Miranda): platillo + casco + 2 nacelas
+      const sc=circlePts(cx,h*0.68,w*0.29);
+      shadePoly(g,sc,dk,hi,6,-0.55,-0.9); gPoly(g,sc,null,OUT,2.4); edgeLight(g,sc,0xffffff,1.1);
+      g.lineStyle(1.2,mixC(dk,0x000000,0.35),0.6); g.strokeCircle(cx,h*0.68,w*0.20);
+      g.lineStyle(0.9,hi,0.4); g.strokeCircle(cx,h*0.68,w*0.12);
+      g.lineStyle(1.6,0xcc3030,0.9); g.arc(cx,h*0.68,w*0.24,Math.PI*1.1,Math.PI*1.9); g.strokePath();
+      g.lineStyle(1.2,0x2b5fd0,0.85); g.arc(cx,h*0.68,w*0.15,Math.PI*0.1,Math.PI*0.9); g.strokePath();
+      g.fillStyle(0xc9ced6,1); g.fillCircle(cx,h*0.68,7);
+      g.fillStyle(0xffffff,0.9); g.fillCircle(cx-2,h*0.68-2.4,3);
+      // cuello + casco de ingeniería
+      g.fillStyle(lo,1); g.fillRect(cx-10,h*0.30,20,h*0.30);
+      const eng=gPts([[cx-16,h*0.16],[cx+16,h*0.16],[cx+20,h*0.46],[cx-20,h*0.46]]);
+      shadePoly(g,eng,dk,hi,5,-0.5,-0.9); gPoly(g,eng,null,OUT,2);
+      // plato deflector
+      g.fillStyle(0x141a22,1); g.fillEllipse(cx,h*0.44,24,16);
+      g.fillStyle(0xffa32a,0.95); g.fillEllipse(cx,h*0.45,19,12);
+      g.fillStyle(0xffe0a0,0.9); g.fillEllipse(cx,h*0.44,10,6);
+      // nacelas
+      [-1,1].forEach(d=>{ const x=cx+d*w*0.38;
+        g.fillStyle(0x0d1117,1); g.fillRoundedRect(x-11,h*0.20,22,h*0.52,9);
+        g.fillStyle(mixC(c,0xffffff,0.25),1); g.fillRoundedRect(x-9,h*0.22,18,h*0.48,8);
+        g.fillStyle(0x8a9098,1); g.fillRoundedRect(x-9,h*0.22,7,h*0.48,8);
+        g.fillStyle(0x2f7dff,0.9); g.fillRoundedRect(x-5,h*0.30,10,h*0.34,5);
+        g.lineStyle(0.8,0x9fd0ff,0.7);
+        for(let k=1;k<6;k++) g.lineBetween(x-5,h*0.30+k*h*0.056,x+5,h*0.30+k*h*0.056);
+        // colector al frente (abajo)
+        g.fillStyle(0x11151b,1); g.fillEllipse(x,h*0.71,22,16);
+        g.fillStyle(0xff5a1f,0.95); g.fillEllipse(x,h*0.72,17,12);
+        g.fillStyle(0xffd08a,0.9); g.fillEllipse(x,h*0.71,9,6);
+        // pylon
+        g.fillStyle(lo,1); g.fillRect(Math.min(x,cx+d*14)-2,h*0.30,Math.abs(x-cx)+4,h*0.10);
+        // motor trasero
+        engineNozzle(g,x,h*0.16,16,0x59c8ff); });
+      // registros
+      g.fillStyle(0x12161c,0.85); g.fillRect(cx-26,h*0.60,12,5); g.fillRect(cx+14,h*0.60,12,5);
+      g.fillStyle(0xffffff,0.7); g.fillRect(cx-25,h*0.61,10,2); g.fillRect(cx+15,h*0.61,10,2);
+      return;
+    }
+    if(st==='capital'){
+      // Casco largo con alas y puente de mando (Mano Invisible / Sanctuary II / Nemesis)
+      const hull=gPts([[cx,h-6],[w-6,h*0.56],[w-8,h*0.30],[cx+w*0.34,h*0.14],[cx+w*0.30,8],
+                       [cx-w*0.30,8],[cx-w*0.34,h*0.14],[8,h*0.30],[6,h*0.56]]);
+      shadePoly(g,hull,lo,hi,8,-0.5,-0.85); gPoly(g,hull,null,OUT,2.6); edgeLight(g,hull,0xffffff,1.1);
+      // lóbulos laterales
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.30,h*0.20],[cx+d*w*0.48,h*0.40],[cx+d*w*0.46,h*0.74],
+                                        [cx+d*w*0.30,h*0.62],[cx+d*w*0.24,h*0.34]]);
+        shadePoly(g,p,dk,hi,5,-0.5,-0.85); gPoly(g,p,null,OUT,2);
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.40,h*0.70,20,14);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.40,h*0.71,14,9); });
+      // espinas dorsal
+      const spine=gPts([[cx,h*0.90],[cx+w*0.17,h*0.52],[cx+w*0.13,14],[cx-w*0.13,14],[cx-w*0.17,h*0.52]]);
+      shadePoly(g,spine,dk,mixC(c,0xffffff,0.5),6,-0.4,-1); gPoly(g,spine,null,OUT,1.8);
+      // trincheras
+      g.lineStyle(1,lo,0.55);
+      for(let k=-3;k<=3;k++){ if(!k) continue; g.lineBetween(cx+k*w*0.06,h*0.18,cx+k*w*0.02,h*0.86); }
+      g.lineStyle(0.8,hi,0.35);
+      for(let k=1;k<7;k++){ const y=h*0.16+k*h*0.11; g.lineBetween(cx-w*0.34,y,cx+w*0.34,y); }
+      // puente de mando
+      g.fillStyle(0x12161c,1); g.fillRect(cx-16,h*0.10,32,26);
+      g.fillStyle(mixC(c,0xffffff,0.4),1); g.fillRect(cx-14,h*0.11,28,23);
+      g.fillStyle(0x161c24,1); g.fillRect(cx-12,h*0.14,24,7);
+      g.fillStyle(s.e,0.9); g.fillRect(cx-10,h*0.15,20,4);
+      g.fillStyle(0x2a3038,1); g.fillRect(cx-12,h*0.23,24,6);
+      // motores
+      const n=3;
+      for(let k=0;k<n;k++){ const x=cx+(k-1)*w*0.16;
+        g.fillStyle(0x080b10,1); g.fillRoundedRect(x-12,4,24,12,3);
+        g.fillStyle(0x59c8ff,0.95); g.fillRoundedRect(x-10,5.5,20,9,3);
+        g.fillStyle(0xe6f9ff,0.95); g.fillRoundedRect(x-7,7,14,5,2);
+        haloEll(g,x,10,24,13,0x59c8ff,0.5,2); }
+      g.fillStyle(s.e,0.8);
+      for(let k=0;k<12;k++){ const y=h*0.3+k*h*0.05, x=cx+(k%2?1:-1)*w*0.30; g.fillCircle(x,y,1.6); }
+      return;
+    }
+    if(st==='warship'){
+      // Acorazado casco-bloque con torretas (Dreadnaught / Dai-Gunzan / Queen Mama / Malevolence)
+      const hull=gPts([[cx,h-8],[w-10,h*0.66],[w-14,h*0.22],[cx+w*0.40,h*0.08],[cx+w*0.26,6],
+                       [cx-w*0.26,6],[cx-w*0.40,h*0.08],[14,h*0.22],[10,h*0.66]]);
+      shadePoly(g,hull,lo,hi,8,-0.5,-0.85); gPoly(g,hull,null,OUT,2.8); edgeLight(g,hull,0xffffff,1.2);
+      // superestructuras
+      const blocks=[[cx-w*0.24,h*0.14,w*0.48,h*0.16],[cx-w*0.30,h*0.34,w*0.60,h*0.12],[cx-w*0.18,h*0.50,w*0.36,h*0.14]];
+      blocks.forEach(b=>{ const p=gPts([[b[0],b[1]],[b[0]+b[2],b[1]],[b[0]+b[2],b[1]+b[3]],[b[0],b[1]+b[3]]]);
+        shadePoly(g,p,dk,hi,4,-0.5,-0.9); gPoly(g,p,null,OUT,1.6);
+        g.lineStyle(0.9,lo,0.5);
+        for(let k=1;k<4;k++) g.lineBetween(b[0],b[1]+k*b[3]/4,b[0]+b[2],b[1]+k*b[3]/4); });
+      // torretas
+      const turrets=[[cx-w*0.28,h*0.42],[cx+w*0.28,h*0.42],[cx-w*0.22,h*0.68],[cx+w*0.22,h*0.68],[cx,h*0.62]];
+      turrets.forEach(t=>{ g.fillStyle(0x0a0e14,1); g.fillCircle(t[0],t[1],11);
+        g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillCircle(t[0],t[1],9);
+        g.fillStyle(0x2a3038,1); g.fillCircle(t[0],t[1],4.5);
+        g.lineStyle(3,0x141a22,1); g.lineBetween(t[0],t[1]+3,t[0],t[1]+18);
+        g.lineStyle(1.4,0x6d7681,1); g.lineBetween(t[0]-1,t[1]+3,t[0]-1,t[1]+18);
+        g.fillStyle(s.e,0.85); g.fillCircle(t[0],t[1]-3,2); });
+      // detalles por nave
+      if(s.i===57){ // Queen Mama Chanteur: dientes
+        g.fillStyle(0xfff3e0,0.95);
+        for(let k=0;k<9;k++){ const x=cx-w*0.36+k*w*0.09;
+          g.fillTriangle(x,h*0.86,x+w*0.045,h*0.99,x+w*0.09,h*0.86); }
+        g.fillStyle(0x1a0a10,0.9); g.fillRect(cx-w*0.36,h*0.80,w*0.72,h*0.07);
+        g.fillStyle(0xff8ab0,0.5); g.fillEllipse(cx,h*0.83,w*0.4,h*0.06);
+      }
+      if(s.i===58){ // Malevolence: dos brazos de rayos
+        [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.36,h*0.20],[cx+d*w*0.50,h*0.30],[cx+d*w*0.48,h*0.86],[cx+d*w*0.34,h*0.74]]);
+          shadePoly(g,p,dk,hi,5,-0.5,-0.9); gPoly(g,p,null,OUT,2);
+          g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.41,h*0.84,20,26);
+          g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.41,h*0.85,13,18);
+          g.fillStyle(0xffd9d9,0.9); g.fillEllipse(cx+d*w*0.41,h*0.86,6,9);
+          haloEll(g,cx+d*w*0.41,h*0.85,30,34,s.e,0.4,3); });
+      }
+      if(s.i===55){ // Dai-Gunzan: fachada de ciudad
+        g.fillStyle(0x141a22,0.9);
+        for(let k=0;k<7;k++){ const bw=w*0.07, x=cx-w*0.28+k*w*0.09, bh=h*(0.06+((k*13)%5)*0.02);
+          g.fillRect(x,h*0.16,bw,bh); g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillRect(x+1,h*0.16+1,bw-2,bh-2);
+          g.fillStyle(0x141a22,0.9); }
+        g.fillStyle(s.e,0.85);
+        for(let k=0;k<10;k++) g.fillCircle(cx-w*0.26+k*w*0.058,h*0.20,1.8);
+      }
+      // casco inferior con lanzas
+      g.fillStyle(lo,1); g.fillRoundedRect(cx-w*0.30,h*0.74,w*0.60,h*0.16,6);
+      g.fillStyle(mixC(c,0xffffff,0.15),1); g.fillRoundedRect(cx-w*0.27,h*0.75,w*0.54,h*0.10,5);
+      // motores
+      for(let k=-1;k<=1;k++){ const x=cx+k*w*0.20;
+        g.fillStyle(0x080b10,1); g.fillRoundedRect(x-13,3,26,13,4);
+        g.fillStyle(0xff8a3a,0.95); g.fillRoundedRect(x-11,4.5,22,10,3);
+        g.fillStyle(0xffe6b0,0.95); g.fillRoundedRect(x-8,6,16,6,3);
+        haloEll(g,x,10,26,14,0xff8a3a,0.5,2); }
+      return;
+    }
+    if(st==='wing'){
+      // Ala volante ancha (Spaceball One / Aigaion)
+      const hull=gPts([[cx,h-6],[w-8,h*0.62],[w-16,h*0.34],[cx+w*0.26,h*0.24],[cx+w*0.20,10],
+                       [cx-w*0.20,10],[cx-w*0.26,h*0.24],[16,h*0.34],[8,h*0.62]]);
+      shadePoly(g,hull,lo,hi,7,-0.5,-0.85); gPoly(g,hull,null,OUT,2.6); edgeLight(g,hull,0xffffff,1.1);
+      // planos laterales
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.24,h*0.30],[cx+d*w*0.47,h*0.52],[cx+d*w*0.44,h*0.72],[cx+d*w*0.24,h*0.60]]);
+        shadePoly(g,p,dk,hi,4,-0.5,-0.9); gPoly(g,p,null,OUT,2);
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.36,h*0.66,26,14);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.36,h*0.67,20,9); });
+      // dorsal
+      const sp=gPts([[cx,h*0.86],[cx+w*0.14,h*0.52],[cx+w*0.11,14],[cx-w*0.11,14],[cx-w*0.14,h*0.52]]);
+      shadePoly(g,sp,dk,mixC(c,0xffffff,0.45),5,-0.4,-1); gPoly(g,sp,null,OUT,1.8);
+      // ventanas / pasillo de luces
+      if(s.i===19){ // Spaceball One: filas de ventanas y cabina
+        g.fillStyle(0x161c24,0.9); g.fillRect(cx-w*0.30,h*0.30,w*0.60,h*0.10);
+        g.fillStyle(0x9fd4ff,0.9);
+        for(let k=0;k<12;k++) g.fillCircle(cx-w*0.27+k*w*0.049,h*0.35,3);
+        g.fillStyle(0x0f1319,1); g.fillEllipse(cx,h*0.50,w*0.34,h*0.14);
+        g.fillStyle(0x88d8ff,0.85); g.fillEllipse(cx,h*0.50,w*0.28,h*0.10);
+        g.fillStyle(0xff4a4a,0.9); g.fillTriangle(cx-w*0.06,h*0.14,cx+w*0.06,h*0.14,cx,h*0.06);
+      } else { // Aigaion: ojo de gravedad central
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.44,w*0.36,h*0.20);
+        g.fillStyle(0x1d2530,1); g.fillEllipse(cx,h*0.44,w*0.30,h*0.15);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.46,w*0.18,h*0.09);
+        g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.03,h*0.44,w*0.07,h*0.035);
+        haloEll(g,cx,h*0.45,w*0.4,h*0.22,s.e,0.35,3);
+        g.lineStyle(2,hi,0.6);
+        g.lineBetween(cx-w*0.42,h*0.44,cx-w*0.16,h*0.44); g.lineBetween(cx+w*0.42,h*0.44,cx+w*0.16,h*0.44);
+      }
+      // motores
+      for(let k=-2;k<=2;k++){ const x=cx+k*w*0.13;
+        g.fillStyle(0x080b10,1); g.fillRoundedRect(x-9,3,18,11,3);
+        g.fillStyle(0x7fe0ff,0.95); g.fillRoundedRect(x-7,4.5,14,8,3);
+        haloEll(g,x,9,18,12,0x7fe0ff,0.45,2); }
+      return;
+    }
+    // industrial: casco con raíles frontales (USM Auriga / Collector Cruiser / Sith Infiltrator)
+    const dark={12:true}[s.i];
+    const body=gPts([[cx,h-10],[cx+w*0.24,h*0.72],[cx+w*0.26,h*0.34],[cx+w*0.20,8],[cx-w*0.20,8],
+                     [cx-w*0.26,h*0.34],[cx-w*0.24,h*0.72]]);
+    shadePoly(g,body,lo,hi,7,-0.5,-0.85); gPoly(g,body,null,OUT,2.6); edgeLight(g,body,0xffffff,1.1);
+    // raíles delanteros (dos lanzas hacia abajo)
+    [-1,1].forEach(d=>{ const x=cx+d*w*0.30;
+      const p=gPts([[x-9,h*0.30],[x+9,h*0.30],[x+7,h*0.98],[x-7,h*0.98]]);
+      shadePoly(g,p,dk,hi,5,-0.5,-0.9); gPoly(g,p,null,OUT,2);
+      g.lineStyle(1.4,lo,0.7); g.lineBetween(x,h*0.34,x,h*0.94);
+      g.fillStyle(s.e,0.9); g.fillCircle(x,h*0.95,4);
+      g.fillStyle(0xffffff,0.85); g.fillCircle(x,h*0.95,1.8);
+      g.fillStyle(0x141a22,1); g.fillRect(x-12,h*0.44,24,8);
+      g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillRect(x-11,h*0.45,22,6);
+      // brazo que une con el casco
+      g.fillStyle(lo,1); g.fillRect(Math.min(x,cx)-4,h*0.40,Math.abs(x-cx)+8,h*0.07); });
+    // espinas y greebles
+    const sp=gPts([[cx,h*0.84],[cx+w*0.13,h*0.52],[cx+w*0.11,14],[cx-w*0.11,14],[cx-w*0.13,h*0.52]]);
+    shadePoly(g,sp,dk,mixC(c,0xffffff,0.45),5,-0.4,-1); gPoly(g,sp,null,OUT,1.8);
+    g.lineStyle(1,lo,0.6);
+    for(let k=-2;k<=2;k++){ if(!k) continue; g.lineBetween(cx+k*w*0.05,h*0.16,cx+k*w*0.04,h*0.78); }
+    g.lineStyle(0.9,hi,0.4);
+    for(let k=1;k<8;k++){ const y=h*0.14+k*h*0.10; g.lineBetween(cx-w*0.22,y,cx+w*0.22,y); }
+    // torreta central
+    g.fillStyle(0x0a0e14,1); g.fillCircle(cx,h*0.30,13);
+    g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillCircle(cx,h*0.30,11);
+    g.fillStyle(0x20262e,1); g.fillCircle(cx,h*0.30,5);
+    g.fillStyle(s.e,0.9); g.fillCircle(cx,h*0.30-3,2.4);
+    // cola de motores
+    g.fillStyle(0x0d1117,1); g.fillRoundedRect(cx-w*0.20,4,w*0.40,14,5);
+    for(let k=-1;k<=1;k++){ const x=cx+k*w*0.12;
+      g.fillStyle(dark?0xff4a4a:0x59c8ff,0.95); g.fillRoundedRect(x-10,5.5,20,10,3);
+      g.fillStyle(0xffffff,0.9); g.fillRoundedRect(x-6,7,12,5,2);
+      haloEll(g,x,10,22,13,dark?0xff4a4a:0x59c8ff,0.5,2); }
+    if(dark){ // Scimitar: ala trasera en sierra
+      [-1,1].forEach(d=>{ g.fillStyle(0x11151b,1);
+        g.fillTriangle(cx+d*w*0.26,h*0.22,cx+d*w*0.44,h*0.36,cx+d*w*0.26,h*0.44); });
+      g.fillStyle(s.e,0.75); g.fillEllipse(cx,h*0.56,w*0.16,h*0.06);
+    }
+  },
+  // ===== AVES: Warbird / Bird of Prey / naves Covenant =====
+  bird(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    const st={6:'klingon',21:'cov',23:'cov'}[s.i]||'romulan';
+    if(st==='romulan'){
+      // D'deridex: dos cascos curvos enormes con hueco central
+      [-1,1].forEach(d=>{
+        const p=gPts([[cx+d*w*0.10,h*0.08],[cx+d*w*0.44,h*0.04],[cx+d*w*0.49,h*0.30],
+                      [cx+d*w*0.42,h*0.72],[cx+d*w*0.30,h*0.97],[cx+d*w*0.20,h*0.92],
+                      [cx+d*w*0.26,h*0.56],[cx+d*w*0.16,h*0.34]]);
+        shadePoly(g,p,lo,hi,7,-0.5,-0.85); gPoly(g,p,null,OUT,2.6); edgeLight(g,p,0xffffff,1.1);
+        g.lineStyle(1.2,lo,0.6);
+        g.lineBetween(cx+d*w*0.16,h*0.14,cx+d*w*0.36,h*0.90);
+        g.lineBetween(cx+d*w*0.26,h*0.12,cx+d*w*0.42,h*0.76);
+        g.lineStyle(1,hi,0.35);
+        for(let k=1;k<7;k++) g.lineBetween(cx+d*w*0.14,h*0.10+k*h*0.12,cx+d*w*0.46,h*0.14+k*h*0.12);
+        // conducto verde
+        g.lineStyle(3,s.e,0.75);
+        g.lineBetween(cx+d*w*0.30,h*0.18,cx+d*w*0.36,h*0.80);
+        // motores
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.27,h*0.06,34,16);
+        g.fillStyle(0x6affc0,0.9); g.fillEllipse(cx+d*w*0.27,h*0.055,26,11);
+        haloEll(g,cx+d*w*0.27,h*0.06,40,20,0x5affc0,0.45,2);
+      });
+      // cuerpo central
+      const body=gPts([[cx,h*0.97],[cx+w*0.11,h*0.72],[cx+w*0.09,h*0.24],[cx,h*0.10],[cx-w*0.09,h*0.24],[cx-w*0.11,h*0.72]]);
+      shadePoly(g,body,dk,hi,5,-0.4,-1); gPoly(g,body,null,OUT,2.2);
+      g.fillStyle(0x0e1a16,1); g.fillEllipse(cx,h*0.52,w*0.14,h*0.30);
+      g.fillStyle(s.e,0.55); g.fillEllipse(cx,h*0.54,w*0.09,h*0.22);
+      g.fillStyle(0xffffff,0.9); g.fillCircle(cx,h*0.30,4);
+      return;
+    }
+    if(st==='klingon'){
+      // Bird of Prey: cuerpo con alas en punta y garras
+      const body=gPts([[cx,h-6],[cx+w*0.16,h*0.62],[cx+w*0.14,h*0.28],[cx,h*0.10],[cx-w*0.14,h*0.28],[cx-w*0.16,h*0.62]]);
+      shadePoly(g,body,lo,hi,6,-0.5,-0.85); gPoly(g,body,null,OUT,2.4);
+      [-1,1].forEach(d=>{
+        const wing=gPts([[cx+d*w*0.12,h*0.26],[cx+d*w*0.47,h*0.40],[cx+d*w*0.44,h*0.66],[cx+d*w*0.16,h*0.58]]);
+        shadePoly(g,wing,dk,hi,6,-0.5,-0.85); gPoly(g,wing,null,OUT,2.4); edgeLight(g,wing,0xffffff,1);
+        // garra
+        const claw=gPts([[cx+d*w*0.44,h*0.62],[cx+d*w*0.50,h*0.86],[cx+d*w*0.42,h*0.94],[cx+d*w*0.38,h*0.70]]);
+        shadePoly(g,claw,mixC(dk,0x000000,0.3),mixC(c,0xffffff,0.4),4,-0.5,-0.9); gPoly(g,claw,null,OUT,2);
+        g.fillStyle(s.e,0.85); g.fillCircle(cx+d*w*0.46,h*0.88,4);
+        // nervadura
+        g.lineStyle(1.6,lo,0.7); g.lineBetween(cx+d*w*0.14,h*0.30,cx+d*w*0.44,h*0.56);
+        // cañón de la garra
+        g.lineStyle(4,0x141a22,1); g.lineBetween(cx+d*w*0.44,h*0.72,cx+d*w*0.47,h*0.96);
+        g.lineStyle(2,0x6d7681,1); g.lineBetween(cx+d*w*0.44,h*0.72,cx+d*w*0.47,h*0.96);
+        // motor
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.20,h*0.14,26,14);
+        g.fillStyle(s.e,0.85); g.fillEllipse(cx+d*w*0.20,h*0.135,19,9);
+      });
+      // cabeza / cabina
+      g.fillStyle(0x0d1310,1); g.fillEllipse(cx,h*0.78,w*0.22,h*0.16);
+      g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillEllipse(cx,h*0.78,w*0.18,h*0.12);
+      g.fillStyle(0x101a14,1); g.fillEllipse(cx,h*0.76,w*0.12,h*0.06);
+      g.fillStyle(s.e,0.8); g.fillEllipse(cx,h*0.765,w*0.08,h*0.035);
+      g.lineStyle(1.4,lo,0.75); g.lineBetween(cx,h*0.16,cx,h*0.72);
+      return;
+    }
+    // Covenant (Truth and Reconciliation / Supercarrier): casco curvo con luces y motor
+    const body=gPts([[cx,h-8],[cx+w*0.26,h*0.70],[cx+w*0.34,h*0.40],[cx+w*0.30,h*0.14],
+                     [cx+w*0.14,6],[cx-w*0.14,6],[cx-w*0.30,h*0.14],[cx-w*0.34,h*0.40],[cx-w*0.26,h*0.70]]);
+    shadePoly(g,body,lo,hi,8,-0.5,-0.85); gPoly(g,body,null,OUT,2.6); edgeLight(g,body,0xffffff,1.1);
+    // costillas curvas
+    g.lineStyle(2.2,mixC(c,0xffffff,0.3),0.7);
+    for(let k=1;k<5;k++){ const y=h*(0.14+k*0.16), ww=w*(0.34-k*0.02);
+      g.lineBetween(cx-ww,y,cx-ww*0.5,y+h*0.10); g.lineBetween(cx+ww,y,cx+ww*0.5,y+h*0.10); }
+    g.lineStyle(1.2,lo,0.6); g.lineBetween(cx,h*0.10,cx,h*0.90);
+    // hendiduras de armas (turquesa)
+    [-1,1].forEach(d=>{ for(let k=0;k<4;k++){ const y=h*(0.26+k*0.16);
+      g.fillStyle(0x0a1418,1); g.fillEllipse(cx+d*w*0.26,y,w*0.12,h*0.07);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.26,y,w*0.085,h*0.045);
+      g.fillStyle(0xffffff,0.6); g.fillEllipse(cx+d*w*0.26,y-h*0.008,w*0.04,h*0.018); } });
+    // morro en punta
+    g.fillStyle(mixC(c,0xffffff,0.2),1); g.fillTriangle(cx,h*0.99,cx-w*0.16,h*0.74,cx+w*0.16,h*0.74);
+    g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.84,w*0.10,h*0.05);
+    // motor superior
+    g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.10,w*0.34,h*0.12);
+    g.fillStyle(0x9a7fff,0.9); g.fillEllipse(cx,h*0.095,w*0.27,h*0.08);
+    g.fillStyle(0xe8ddff,0.9); g.fillEllipse(cx,h*0.09,w*0.13,h*0.035);
+    haloEll(g,cx,h*0.10,w*0.42,h*0.16,0x9a7fff,0.45,3);
+    for(let k=0;k<8;k++){ const y=h*0.20+k*h*0.09; g.fillStyle(s.e,0.8); g.fillCircle(cx-w*0.06,y,2); g.fillCircle(cx+w*0.06,y,2); }
+  },
+  // ===== LEVIATÁN CHITAURI: serpiente segmentada con mandíbula =====
+  serpent(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    const segs=9, pts=[];
+    for(let k=0;k<=segs;k++){ const t=k/segs;
+      pts.push({x:cx+Math.sin(t*Math.PI*1.5)*w*0.17, y:h*0.06+t*h*0.80}); }
+    // cuerpo segmentado (de atrás hacia delante)
+    for(let k=segs-1;k>=0;k--){
+      const a=pts[k], b=pts[k+1], t=k/segs;
+      const rw=(w*0.20)*(1-t*0.42)+4;
+      const ang=Math.atan2(b.y-a.y,b.x-a.x), nx=Math.cos(ang+Math.PI/2), ny=Math.sin(ang+Math.PI/2);
+      const p=[{x:a.x+nx*rw,y:a.y+ny*rw},{x:b.x+nx*rw*0.94,y:b.y+ny*rw*0.94},
+               {x:b.x-nx*rw*0.94,y:b.y-ny*rw*0.94},{x:a.x-nx*rw,y:a.y-ny*rw}];
+      shadePoly(g,p,lo,hi,4,-0.5,-0.9); gPoly(g,p,null,OUT,2.2);
+      g.lineStyle(1.6,lo,0.7); g.lineBetween(b.x+nx*rw*0.9,b.y+ny*rw*0.9,b.x-nx*rw*0.9,b.y-ny*rw*0.9);
+      // placas dorsales
+      if(k%2===0) gPoly(g,gPts([[b.x-nx*rw*0.8,b.y-ny*rw*0.8],[b.x+nx*rw*0.8,b.y+ny*rw*0.8],
+                                [b.x+nx*rw*0.3+ (b.x-cx)*0.12,b.y+ny*rw*0.3-(h/segs)*0.5]]),mixC(dk,0x000000,0.25),OUT,1.4);
+      // aletas
+      if(k>0&&k<segs-1){ [-1,1].forEach(d=>{ const bx=a.x+d*rw*0.9, by=a.y;
+          gPoly(g,gPts([[bx,by],[bx+d*w*0.16,by-h*0.05],[bx+d*w*0.13,by+h*0.05]]),mixC(c,0x000000,0.2),OUT,1.6); }); }
+      g.fillStyle(s.e,0.85); g.fillCircle(b.x,b.y+ (k%2?3:-3),2.4);
+    }
+    // cabeza (al final, abajo)
+    const hd=pts[segs];
+    const head=gPts([[hd.x,hd.y+h*0.12],[hd.x+w*0.16,hd.y+h*0.02],[hd.x+w*0.13,hd.y-h*0.10],
+                     [hd.x,hd.y-h*0.13],[hd.x-w*0.13,hd.y-h*0.10],[hd.x-w*0.16,hd.y+h*0.02]]);
+    shadePoly(g,head,lo,hi,5,-0.5,-0.9); gPoly(g,head,null,OUT,2.4); edgeLight(g,head,0xffffff,1);
+    // mandíbula
+    g.fillStyle(0x0b0f14,1); g.fillEllipse(hd.x,hd.y+h*0.03,w*0.16,h*0.07);
+    g.fillStyle(0xd8d2c0,0.95);
+    for(let k=0;k<6;k++){ const x=hd.x-w*0.07+k*w*0.028;
+      g.fillTriangle(x,hd.y+h*0.005,x+w*0.012,hd.y+h*0.055,x+w*0.024,hd.y+h*0.005); }
+    // ojos
+    [-1,1].forEach(d=>{ g.fillStyle(0x0a0e14,1); g.fillEllipse(hd.x+d*w*0.08,hd.y-h*0.04,16,12);
+      g.fillStyle(s.e,0.95); g.fillEllipse(hd.x+d*w*0.08,hd.y-h*0.04,10,7);
+      g.fillStyle(0xffffff,0.9); g.fillEllipse(hd.x+d*w*0.08-2,hd.y-h*0.05,4,3); });
+    haloEll(g,hd.x,hd.y,w*0.3,h*0.1,s.g,0.3,3);
+  },
+  // ===== CÁPSULAS: Slave I (Firespray-31) y nave de Freezer =====
+  pod(g,s){
+    const w=s.w,h=s.h,cx=w/2,cy=h/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.38),lo=mixC(dk,0x000000,0.4);
+    const slave={11:1}[s.i];
+    if(slave){
+      // alas plegadas a los lados
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.22,h*0.30],[cx+d*w*0.48,h*0.44],[cx+d*w*0.46,h*0.74],[cx+d*w*0.22,h*0.66]]);
+        shadePoly(g,p,dk,hi,5,-0.5,-0.85); gPoly(g,p,null,OUT,2.2);
+        g.fillStyle(0x0b0f14,1); g.fillEllipse(cx+d*w*0.36,h*0.70,24,16);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.36,h*0.71,17,10); });
+      // cuerpo ovalado
+      const body=[]; for(let i=0;i<24;i++){ const a=-Math.PI/2+i*Math.PI*2/24;
+        body.push({x:cx+Math.cos(a)*w*0.24, y:cy+Math.sin(a)*h*0.44}); }
+      shadePoly(g,body,lo,hi,7,-0.5,-0.9); gPoly(g,body,null,OUT,2.6); edgeLight(g,body,0xffffff,1.1);
+      // paneles
+      g.lineStyle(1.4,lo,0.7); g.strokeEllipse(cx,cy+h*0.06,w*0.17,h*0.30);
+      g.lineStyle(1,hi,0.4); g.lineBetween(cx-w*0.20,h*0.36,cx+w*0.20,h*0.36);
+      g.lineBetween(cx-w*0.22,h*0.54,cx+w*0.22,h*0.54);
+      // cabina
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.66,w*0.30,h*0.20);
+      g.fillStyle(0x16324a,0.95); g.fillEllipse(cx,h*0.66,w*0.24,h*0.15);
+      g.fillStyle(0x7fd4ff,0.8); g.fillEllipse(cx-w*0.03,h*0.63,w*0.11,h*0.06);
+      g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.05,h*0.615,w*0.05,h*0.025);
+      g.lineStyle(1.6,0x0b0f14,1); g.strokeEllipse(cx,h*0.66,w*0.30,h*0.20);
+      // torreta
+      g.fillStyle(0x11151b,1); g.fillCircle(cx,h*0.34,9);
+      g.fillStyle(0x8f959d,1); g.fillCircle(cx,h*0.34,7);
+      g.lineStyle(3,0x141a22,1); g.lineBetween(cx-4,h*0.30,cx-7,h*0.18); g.lineBetween(cx+4,h*0.30,cx+7,h*0.18);
+      // motor
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.10,w*0.34,h*0.12);
+      g.fillStyle(0xff8a3a,0.95); g.fillEllipse(cx,h*0.095,w*0.26,h*0.08);
+      g.fillStyle(0xffe8c0,0.95); g.fillEllipse(cx,h*0.09,w*0.12,h*0.035);
+      haloEll(g,cx,h*0.10,w*0.42,h*0.16,0xff8a3a,0.5,3);
+      return;
+    }
+    // Nave de Freezer: cápsula blanca con aletas y ventana
+    [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.24,h*0.34],[cx+d*w*0.48,h*0.52],[cx+d*w*0.40,h*0.78],[cx+d*w*0.24,h*0.68]]);
+      shadePoly(g,p,mixC(dk,0x000000,0.2),mixC(c,0xffffff,0.3),4,-0.5,-0.9); gPoly(g,p,null,OUT,2.2);
+      g.fillStyle(0x6a4aff,0.85); g.fillEllipse(cx+d*w*0.36,h*0.62,18,26); });
+    const body=[]; for(let i=0;i<22;i++){ const a=-Math.PI/2+i*Math.PI*2/22;
+      body.push({x:cx+Math.cos(a)*w*0.26, y:cy+Math.sin(a)*h*0.46}); }
+    shadePoly(g,body,lo,hi,6,-0.5,-0.9); gPoly(g,body,null,OUT,2.6); edgeLight(g,body,0xffffff,1.1);
+    g.lineStyle(1.4,0x9a9a94,0.7); g.strokeEllipse(cx,cy+h*0.04,w*0.18,h*0.30);
+    g.fillStyle(0x0f1319,1); g.fillEllipse(cx,h*0.66,w*0.34,h*0.18);
+    g.fillStyle(0x2a1a4a,0.95); g.fillEllipse(cx,h*0.66,w*0.28,h*0.13);
+    g.fillStyle(0xa88aff,0.75); g.fillEllipse(cx-w*0.04,h*0.63,w*0.12,h*0.05);
+    // crestas
+    g.fillStyle(0x6a4aff,0.9); g.fillTriangle(cx,h*0.16,cx-w*0.10,h*0.30,cx+w*0.10,h*0.30);
+    // motor
+    g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.10,w*0.36,h*0.12);
+    g.fillStyle(0x9a7fff,0.95); g.fillEllipse(cx,h*0.095,w*0.28,h*0.08);
+    haloEll(g,cx,h*0.10,w*0.44,h*0.16,0x9a7fff,0.5,3);
+    g.fillStyle(0xffffff,0.5);
+    for(let k=0;k<6;k++) g.fillCircle(cx-w*0.16+k*w*0.064,h*0.44,2);
+  },
+  // ===== NÚCLEOS GRADIUS (Big Core / MK-III): casco con escudos y núcleo =====
+  core(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.4),lo=mixC(dk,0x000000,0.4);
+    // casco principal
+    const hull=gPts([[cx,h-14],[w-8,h*0.72],[w-8,h*0.30],[cx+w*0.30,10],[cx-w*0.30,10],[8,h*0.30],[8,h*0.72]]);
+    shadePoly(g,hull,lo,hi,7,-0.5,-0.85); gPoly(g,hull,null,OUT,2.6); edgeLight(g,hull,0xffffff,1.1);
+    // escudos móviles laterales (los "gunwalls")
+    [-1,1].forEach(d=>{ const x=cx+d*w*0.34;
+      const p=gPts([[x-d*4,h*0.24],[x+d*w*0.13,h*0.30],[x+d*w*0.13,h*0.86],[x-d*4,h*0.80]]);
+      shadePoly(g,p,dk,mixC(c,0xffffff,0.2),5,-0.5,-0.9); gPoly(g,p,null,OUT,2.2);
+      g.lineStyle(1.6,OUT,0.85);
+      for(let k=1;k<5;k++) g.lineBetween(x-d*2,h*0.26+k*h*0.13,x+d*w*0.12,h*0.32+k*h*0.13);
+      g.fillStyle(s.e,0.85); g.fillCircle(x+d*w*0.06,h*0.34,3); g.fillCircle(x+d*w*0.06,h*0.76,3); });
+    // habitación del núcleo
+    g.fillStyle(0x070b12,1); g.fillEllipse(cx,h*0.54,w*0.44,h*0.44);
+    g.lineStyle(2.6,0x2b323c,1); g.strokeEllipse(cx,h*0.54,w*0.44,h*0.44);
+    // núcleo de energía
+    const crit=(s.i===25);
+    const cc=crit?0xff4a3a:0x4ad8ff;
+    g.fillStyle(0x031018,1); g.fillCircle(cx,h*0.54,w*0.17);
+    g.fillStyle(cc,0.95); g.fillCircle(cx,h*0.54,w*0.13);
+    g.fillStyle(mixC(cc,0xffffff,0.6),0.95); g.fillCircle(cx,h*0.54,w*0.08);
+    g.fillStyle(0xffffff,0.95); g.fillCircle(cx,h*0.54,w*0.045);
+    haloEll(g,cx,h*0.54,w*0.34,h*0.30,cc,0.55,3);
+    g.lineStyle(2,cc,0.7); g.strokeCircle(cx,h*0.54,w*0.17);
+    // cañones frontales
+    [-1,1].forEach(d=>{ const x=cx+d*w*0.20;
+      g.fillStyle(0x0a0e14,1); g.fillRoundedRect(x-7,h*0.74,14,h*0.22,4);
+      g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillRoundedRect(x-5.5,h*0.75,11,h*0.20,4);
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(x,h*0.95,12,8);
+      g.fillStyle(s.e,0.9); g.fillEllipse(x,h*0.95,7,4); });
+    // conductos superiores
+    g.lineStyle(2.4,s.e,0.7);
+    g.lineBetween(cx-w*0.26,h*0.26,cx-w*0.14,h*0.44); g.lineBetween(cx+w*0.26,h*0.26,cx+w*0.14,h*0.44);
+    // motores
+    for(let k=-1;k<=1;k++){ const x=cx+k*w*0.17;
+      g.fillStyle(0x080b10,1); g.fillRoundedRect(x-12,4,24,12,3);
+      g.fillStyle(0x7fe0ff,0.95); g.fillRoundedRect(x-10,5.5,20,9,3);
+      haloEll(g,x,10,24,13,0x7fe0ff,0.5,2); }
+    g.fillStyle(s.e,0.9);
+    for(let k=0;k<8;k++) g.fillCircle(cx-w*0.22+k*w*0.063,h*0.20,2);
+  },
+  // ===== MOAI (Gradius): cabeza de piedra gigante =====
+  moai(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.35);
+    // cabeza
+    const head=gPts([[cx-w*0.30,h*0.06],[cx+w*0.30,h*0.06],[cx+w*0.34,h*0.40],[cx+w*0.28,h*0.70],
+                     [cx+w*0.14,h*0.94],[cx-w*0.14,h*0.94],[cx-w*0.28,h*0.70],[cx-w*0.34,h*0.40]]);
+    shadePoly(g,head,lo,hi,7,-0.5,-0.85); gPoly(g,head,null,OUT,2.8); edgeLight(g,h,0x000000,0);
+    // frente y pómulos
+    g.fillStyle(mixC(c,0x000000,0.25),1); g.fillEllipse(cx,h*0.24,w*0.60,h*0.20);
+    g.lineStyle(2,lo,0.8); g.lineBetween(cx-w*0.30,h*0.36,cx+w*0.30,h*0.36);
+    // cejas y ojos
+    [-1,1].forEach(d=>{ g.fillStyle(0x3a382f,1);
+      gPoly(g,gPts([[cx+d*w*0.06,h*0.36],[cx+d*w*0.30,h*0.40],[cx+d*w*0.30,h*0.47],[cx+d*w*0.06,h*0.45]]),0x3a382f,OUT,1.4);
+      g.fillStyle(0x101008,1); g.fillEllipse(cx+d*w*0.18,h*0.50,w*0.20,h*0.09);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.18,h*0.505,w*0.13,h*0.05);
+      g.fillStyle(0xffffff,0.7); g.fillEllipse(cx+d*w*0.15,h*0.49,w*0.05,h*0.02); });
+    // nariz alargada
+    const nose=gPts([[cx-w*0.07,h*0.44],[cx+w*0.07,h*0.44],[cx+w*0.11,h*0.74],[cx-w*0.11,h*0.74]]);
+    shadePoly(g,nose,mixC(dk,0x000000,0.2),mixC(c,0xffffff,0.45),5,-0.5,-1); gPoly(g,nose,null,OUT,1.8);
+    // boca
+    g.fillStyle(0x14140e,1); g.fillEllipse(cx,h*0.83,w*0.36,h*0.09);
+    g.lineStyle(2,0x2a2a22,1); g.strokeEllipse(cx,h*0.83,w*0.36,h*0.09);
+    // mentón / hombros
+    g.fillStyle(mixC(dk,0x000000,0.2),1); g.fillRoundedRect(cx-w*0.44,h*0.90,w*0.88,h*0.14,10);
+    g.fillStyle(mixC(c,0x000000,0.15),1); g.fillRoundedRect(cx-w*0.42,h*0.91,w*0.84,h*0.08,8);
+    // grietas y musgo
+    g.lineStyle(1.2,0x35342b,0.85);
+    g.lineBetween(cx-w*0.24,h*0.14,cx-w*0.10,h*0.30); g.lineBetween(cx+w*0.20,h*0.62,cx+w*0.30,h*0.78);
+    g.lineBetween(cx-w*0.30,h*0.56,cx-w*0.20,h*0.70);
+    g.fillStyle(0x4a6b3a,0.4); g.fillEllipse(cx-w*0.20,h*0.14,w*0.16,h*0.06);
+    g.fillStyle(0x4a6b3a,0.3); g.fillEllipse(cx+w*0.24,h*0.86,w*0.14,h*0.05);
+    // halo de energía bajo la cabeza
+    haloEll(g,cx,h*0.5,w*0.5,h*0.5,s.g,0.14,3);
+  },
+  // ===== TANQUES METAL SLUG: Iron Nokana / Big Shiee =====
+  tank(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.35);
+    // orugas
+    [-1,1].forEach(d=>{ const x=cx+d*(w*0.36);
+      g.fillStyle(0x14181e,1); g.fillRoundedRect(x-w*0.10,h*0.10,w*0.20,h*0.84,10);
+      g.fillStyle(mixC(dk,0x000000,0.2),1); g.fillRoundedRect(x-w*0.085,h*0.12,w*0.17,h*0.80,9);
+      g.lineStyle(1.6,0x0a0d12,0.9);
+      for(let k=1;k<12;k++) g.lineBetween(x-w*0.085,h*0.12+k*h*0.072,x+w*0.085,h*0.12+k*h*0.072);
+      g.lineStyle(1.4,0x5a6068,0.7); g.strokeRoundedRect(x-w*0.10,h*0.10,w*0.20,h*0.84,10);
+      // rueda guía
+      g.fillStyle(0x0a0d12,1); g.fillCircle(x,h*0.18,w*0.05); g.fillCircle(x,h*0.84,w*0.05); });
+    // casco
+    const hull=gPts([[cx-w*0.24,h*0.06],[cx+w*0.24,h*0.06],[cx+w*0.28,h*0.70],[cx+w*0.20,h*0.96],[cx-w*0.20,h*0.96],[cx-w*0.28,h*0.70]]);
+    shadePoly(g,hull,lo,hi,7,-0.5,-0.85); gPoly(g,hull,null,OUT,2.6); edgeLight(g,hull,0xffffff,1);
+    // caparazón / placas
+    g.lineStyle(1.6,lo,0.75);
+    g.lineBetween(cx-w*0.26,h*0.30,cx+w*0.26,h*0.30);
+    g.lineBetween(cx-w*0.27,h*0.62,cx+w*0.27,h*0.62);
+    g.lineStyle(1,hi,0.4);
+    for(let k=1;k<6;k++) g.lineBetween(cx-w*0.24,h*0.08+k*h*0.14,cx+w*0.24,h*0.08+k*h*0.14);
+    // torreta
+    g.fillStyle(0x11151b,1); g.fillEllipse(cx,h*0.42,w*0.36,h*0.30);
+    g.fillStyle(mixC(c,0xffffff,0.25),1); g.fillEllipse(cx,h*0.42,w*0.31,h*0.25);
+    g.lineStyle(2,0x141a22,0.9); g.strokeEllipse(cx,h*0.42,w*0.31,h*0.25);
+    g.fillStyle(0x20262e,1); g.fillEllipse(cx,h*0.40,w*0.14,h*0.09);
+    // cañón principal hacia abajo (proa)
+    g.fillStyle(0x0a0e14,1); g.fillRoundedRect(cx-13,h*0.50,26,h*0.44,7);
+    g.fillStyle(0x39414c,1); g.fillRoundedRect(cx-11,h*0.51,22,h*0.42,6);
+    g.fillStyle(0x7f8792,1); g.fillRoundedRect(cx-11,h*0.51,8,h*0.42,6);
+    g.fillStyle(0x141a22,1); g.fillRect(cx-13,h*0.60,26,7); g.fillRect(cx-13,h*0.76,26,7);
+    g.fillStyle(0x05080d,1); g.fillEllipse(cx,h*0.95,24,14);
+    g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.95,15,8);
+    // cañones secundarios
+    [-1,1].forEach(d=>{ const x=cx+d*w*0.20;
+      g.fillStyle(0x0a0e14,1); g.fillCircle(x,h*0.24,8);
+      g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillCircle(x,h*0.24,6.5);
+      g.lineStyle(4,0x1a1f26,1); g.lineBetween(x,h*0.28,x+d*6,h*0.44);
+      g.lineStyle(2,0x8a9098,1); g.lineBetween(x,h*0.28,x+d*6,h*0.44); });
+    // rejillas y remaches
+    g.fillStyle(0x141a22,0.9); g.fillRect(cx-w*0.20,h*0.10,w*0.40,h*0.06);
+    g.fillStyle(s.e,0.9); g.fillCircle(cx-w*0.16,h*0.12,3); g.fillCircle(cx+w*0.16,h*0.12,3);
+    g.fillStyle(0x0d1117,0.85);
+    for(let k=0;k<6;k++) g.fillCircle(cx-w*0.18+k*w*0.072,h*0.86,2.4);
+    if(s.i===30){ // Big Shiee: coraza extra y lanzallamas frontal
+      g.fillStyle(mixC(c,0xffffff,0.15),1); g.fillRoundedRect(cx-w*0.30,h*0.04,w*0.60,h*0.14,8);
+      g.lineStyle(1.6,0x141a22,0.9); g.strokeRoundedRect(cx-w*0.30,h*0.04,w*0.60,h*0.14,8);
+      g.fillStyle(s.e,0.85); g.fillEllipse(cx,h*0.10,w*0.16,h*0.05);
+    }
+    // escapes
+    g.fillStyle(0x0a0e14,1); g.fillCircle(cx-w*0.10,h*0.07,5); g.fillCircle(cx+w*0.10,h*0.07,5);
+    g.fillStyle(0xff9a4a,0.85); g.fillCircle(cx-w*0.10,h*0.07,2.6); g.fillCircle(cx+w*0.10,h*0.07,2.6);
+  },
+  // ===== OVNIS CLÁSICOS: Space Invaders Mothership / Galaga Flagship =====
+  ufo(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.4),lo=mixC(dk,0x000000,0.35);
+    if(s.i===34){
+      // Space Invaders: cuerpo ancho con brazos, ojos y patas
+      const body=gPts([[cx-w*0.30,h*0.24],[cx+w*0.30,h*0.24],[cx+w*0.42,h*0.44],[cx+w*0.42,h*0.62],
+                       [cx+w*0.24,h*0.70],[cx-w*0.24,h*0.70],[cx-w*0.42,h*0.62],[cx-w*0.42,h*0.44]]);
+      shadePoly(g,body,lo,hi,6,-0.5,-0.85); gPoly(g,body,null,OUT,2.6); edgeLight(g,body,0xffffff,1.2);
+      // caparazón superior
+      const top=gPts([[cx-w*0.22,h*0.10],[cx+w*0.22,h*0.10],[cx+w*0.30,h*0.26],[cx-w*0.30,h*0.26]]);
+      shadePoly(g,top,dk,hi,4,-0.5,-0.9); gPoly(g,top,null,OUT,2);
+      g.fillStyle(mixC(c,0xffffff,0.5),1); g.fillRect(cx-w*0.12,h*0.13,w*0.24,h*0.05);
+      // brazos
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.40,h*0.34],[cx+d*w*0.50,h*0.42],[cx+d*w*0.48,h*0.74],[cx+d*w*0.38,h*0.66]]);
+        shadePoly(g,p,dk,hi,4,-0.5,-0.9); gPoly(g,p,null,OUT,2.2); });
+      // ojos
+      [-1,1].forEach(d=>{ g.fillStyle(0x05100a,1); g.fillEllipse(cx+d*w*0.15,h*0.44,w*0.18,h*0.16);
+        g.fillStyle(0xffffff,0.95); g.fillEllipse(cx+d*w*0.15,h*0.44,w*0.13,h*0.11);
+        g.fillStyle(0x0a1a10,1); g.fillEllipse(cx+d*w*0.15,h*0.45,w*0.06,h*0.06);
+        g.fillStyle(s.e,0.8); g.fillEllipse(cx+d*w*0.15,h*0.455,w*0.035,h*0.032); });
+      // "bigote" y patas
+      g.fillStyle(0x0a1a10,1); g.fillRect(cx-w*0.10,h*0.58,w*0.20,h*0.05);
+      g.fillStyle(mixC(c,0x000000,0.2),1);
+      [-1,1].forEach(d=>{ g.fillRoundedRect(cx+d*w*0.30-6,h*0.68,12,h*0.26,5);
+        g.fillRoundedRect(cx+d*w*0.14-6,h*0.70,12,h*0.24,5); });
+      g.fillStyle(s.e,0.9);
+      [-1,1].forEach(d=>{ g.fillCircle(cx+d*w*0.30,h*0.94,4); g.fillCircle(cx+d*w*0.14,h*0.94,4); });
+      haloEll(g,cx,h*0.5,w*0.6,h*0.5,s.g,0.16,3);
+      return;
+    }
+    // Galaga Flagship: casco redondeado con cúpula y alas
+    const body=[]; for(let i=0;i<24;i++){ const a=-Math.PI/2+i*Math.PI*2/24;
+      body.push({x:cx+Math.cos(a)*w*0.34, y:h*0.54+Math.sin(a)*h*0.40}); }
+    shadePoly(g,body,lo,hi,7,-0.5,-0.85); gPoly(g,body,null,OUT,2.6); edgeLight(g,body,0xffffff,1.2);
+    // alas
+    [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.30,h*0.40],[cx+d*w*0.50,h*0.54],[cx+d*w*0.46,h*0.86],[cx+d*w*0.26,h*0.74]]);
+      shadePoly(g,p,dk,hi,5,-0.5,-0.85); gPoly(g,p,null,OUT,2.2); edgeLight(g,p,0xffffff,0.9);
+      g.fillStyle(0x2a5fd0,0.9); g.fillEllipse(cx+d*w*0.38,h*0.66,20,26);
+      g.fillStyle(0x9fd0ff,0.8); g.fillEllipse(cx+d*w*0.38,h*0.63,12,14);
+      g.fillStyle(s.e,0.95); g.fillCircle(cx+d*w*0.44,h*0.84,4); });
+    // cúpula / cabina
+    g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.34,w*0.34,h*0.26);
+    g.fillStyle(0x1d3a6a,0.95); g.fillEllipse(cx,h*0.34,w*0.28,h*0.21);
+    g.fillStyle(0x8fd4ff,0.85); g.fillEllipse(cx-w*0.04,h*0.30,w*0.13,h*0.08);
+    g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.07,h*0.28,w*0.06,h*0.03);
+    g.lineStyle(2,0x101820,1); g.strokeEllipse(cx,h*0.34,w*0.34,h*0.26);
+    // banda y luces
+    g.fillStyle(0x141a22,0.85); g.fillRect(cx-w*0.24,h*0.52,w*0.48,h*0.07);
+    g.fillStyle(s.e,0.9);
+    for(let k=0;k<7;k++) g.fillCircle(cx-w*0.20+k*w*0.066,h*0.555,3.4);
+    // cañones
+    [-1,1].forEach(d=>{ g.lineStyle(5,0x141a22,1); g.lineBetween(cx+d*w*0.18,h*0.74,cx+d*w*0.22,h*0.96);
+      g.lineStyle(2.6,0x8a9098,1); g.lineBetween(cx+d*w*0.18,h*0.74,cx+d*w*0.22,h*0.96);
+      g.fillStyle(s.e,0.9); g.fillCircle(cx+d*w*0.22,h*0.96,3); });
+    haloEll(g,cx,h*0.5,w*0.5,h*0.5,s.g,0.15,3);
+  },
+  // ===== SERES ORGÁNICOS: Dark Aster / Dobkeratops / Bydo / Rootmars =====
+  organic(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    const st={16:'aster',27:'dobke',28:'bydo'}[s.i]||'root';
+    if(st==='aster'){
+      // Dark Aster: casco oscuro afilado con alas orgánicas y ventilas
+      const hull=gPts([[cx,h-6],[cx+w*0.20,h*0.70],[cx+w*0.26,h*0.34],[cx+w*0.16,8],
+                       [cx-w*0.16,8],[cx-w*0.26,h*0.34],[cx-w*0.20,h*0.70]]);
+      shadePoly(g,hull,lo,hi,7,-0.5,-0.85); gPoly(g,hull,null,OUT,2.6); edgeLight(g,hull,0xffffff,1);
+      [-1,1].forEach(d=>{
+        const wing=gPts([[cx+d*w*0.20,h*0.22],[cx+d*w*0.46,h*0.36],[cx+d*w*0.50,h*0.66],
+                         [cx+d*w*0.34,h*0.90],[cx+d*w*0.20,h*0.72]]);
+        shadePoly(g,wing,dk,hi,6,-0.5,-0.85); gPoly(g,wing,null,OUT,2.4); edgeLight(g,wing,0xffffff,1);
+        g.lineStyle(1.6,lo,0.75); g.lineBetween(cx+d*w*0.22,h*0.28,cx+d*w*0.38,h*0.84);
+        g.lineStyle(1,hi,0.35);
+        for(let k=1;k<5;k++) g.lineBetween(cx+d*w*0.22,h*0.26+k*h*0.12,cx+d*w*0.44,h*0.34+k*h*0.12);
+        // ventilas de energía
+        for(let k=0;k<3;k++){ const y=h*(0.34+k*0.18);
+          g.fillStyle(0x0a0708,1); g.fillEllipse(cx+d*w*0.34,y,w*0.13,h*0.07);
+          g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.34,y,w*0.09,h*0.045);
+          g.fillStyle(0xffffff,0.6); g.fillEllipse(cx+d*w*0.34,y-h*0.008,w*0.04,h*0.018); }
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.30,h*0.10,30,16);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.30,h*0.095,22,11); });
+      // columna dorsal
+      const sp=gPts([[cx,h*0.92],[cx+w*0.10,h*0.60],[cx+w*0.09,12],[cx-w*0.09,12],[cx-w*0.10,h*0.60]]);
+      shadePoly(g,sp,dk,mixC(c,0xffffff,0.5),5,-0.4,-1); gPoly(g,sp,null,OUT,1.8);
+      g.lineStyle(2,s.e,0.75); g.lineBetween(cx,h*0.16,cx,h*0.86);
+      g.fillStyle(0x050305,1); g.fillEllipse(cx,h*0.74,w*0.22,h*0.14);
+      g.fillStyle(s.e,0.85); g.fillEllipse(cx,h*0.745,w*0.15,h*0.08);
+      g.fillStyle(0xffffff,0.85); g.fillEllipse(cx,h*0.735,w*0.06,h*0.03);
+      g.fillStyle(0x0a0e14,1);
+      for(let k=-1;k<=1;k++){ g.fillRoundedRect(cx+k*w*0.14-9,4,18,12,3);
+        g.fillStyle(s.e,0.9); g.fillRoundedRect(cx+k*w*0.14-7,5.5,14,9,3); g.fillStyle(0x0a0e14,1); }
+      return;
+    }
+    if(st==='dobke'){
+      // Dobkeratops (R-Type): cuerpo con domo cerebral, colmillos y tentáculos
+      const body=[]; for(let i=0;i<26;i++){ const a=-Math.PI/2+i*Math.PI*2/26;
+        body.push({x:cx+Math.cos(a)*w*0.44, y:h*0.42+Math.sin(a)*h*0.40}); }
+      shadePoly(g,body,lo,hi,7,-0.5,-0.85); gPoly(g,body,null,OUT,2.8); edgeLight(g,body,0xffffff,1);
+      // pliegues carnosos
+      g.lineStyle(2.4,mixC(c,0x000000,0.3),0.7);
+      for(let k=-2;k<=2;k++){ if(!k) continue;
+        g.lineBetween(cx+k*w*0.12,h*0.10,cx+k*w*0.16,h*0.72); }
+      // tentáculos laterales
+      [-1,1].forEach(d=>{ for(let t=0;t<3;t++){
+        const x0=cx+d*w*0.36, y0=h*(0.30+t*0.22);
+        g.lineStyle(9,lo,1); g.lineBetween(x0,y0,x0+d*w*0.14,y0+h*0.16);
+        g.lineStyle(6,mixC(c,0xffffff,0.2),1); g.lineBetween(x0,y0,x0+d*w*0.14,y0+h*0.16);
+        g.fillStyle(s.e,0.9); g.fillCircle(x0+d*w*0.14,y0+h*0.16,4.5);
+        g.fillStyle(0x050305,1); g.fillCircle(x0+d*w*0.145,y0+h*0.165,2); }});
+      // domo cerebral arriba
+      g.fillStyle(0x120a10,1); g.fillEllipse(cx,h*0.14,w*0.46,h*0.24);
+      g.fillStyle(mixC(c,0xffffff,0.35),1); g.fillEllipse(cx,h*0.14,w*0.40,h*0.19);
+      g.lineStyle(1.8,0x4a2030,0.8);
+      for(let k=-2;k<=2;k++){ g.lineBetween(cx+k*w*0.07,h*0.06,cx+k*w*0.09,h*0.22); }
+      g.fillStyle(s.e,0.35); g.fillEllipse(cx,h*0.13,w*0.30,h*0.12);
+      // cara y mandíbula (abajo)
+      g.fillStyle(0x050305,1); g.fillEllipse(cx,h*0.68,w*0.44,h*0.30);
+      g.fillStyle(mixC(c,0x000000,0.25),1); g.fillEllipse(cx,h*0.66,w*0.38,h*0.24);
+      [-1,1].forEach(d=>{ g.fillStyle(0x050305,1); g.fillEllipse(cx+d*w*0.16,h*0.52,w*0.20,h*0.13);
+        g.fillStyle(0xffffff,0.95); g.fillEllipse(cx+d*w*0.16,h*0.52,w*0.15,h*0.09);
+        g.fillStyle(0x120a10,1); g.fillEllipse(cx+d*w*0.16,h*0.525,w*0.06,h*0.05);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.16,h*0.53,w*0.03,h*0.022); });
+      // colmillos
+      g.fillStyle(0xfff3e0,0.95);
+      [-1,1].forEach(d=>{ for(let k=0;k<2;k++){ const x=cx+d*w*(0.10+k*0.16);
+        g.fillTriangle(x-w*0.05,h*0.76,x+w*0.05,h*0.76,x,h*0.94);
+        g.fillTriangle(x-w*0.05,h*0.62,x+w*0.05,h*0.62,x,h*0.74); }});
+      g.fillStyle(0x1a0508,0.95); g.fillEllipse(cx,h*0.80,w*0.40,h*0.14);
+      g.fillStyle(0x6a1020,0.9); g.fillEllipse(cx,h*0.805,w*0.30,h*0.09);
+      return;
+    }
+    if(st==='bydo'){
+      // Bydo: globo carnoso con pliegues y ojo gigante
+      const body=[]; for(let i=0;i<26;i++){ const a=-Math.PI/2+i*Math.PI*2/26;
+        const r=(i%3===0)?0.46:0.44;
+        body.push({x:cx+Math.cos(a)*w*r, y:h*0.48+Math.sin(a)*h*(r*0.94)}); }
+      shadePoly(g,body,lo,hi,8,-0.5,-0.85); gPoly(g,body,null,OUT,2.8); edgeLight(g,body,0xffffff,1);
+      // pliegues
+      g.lineStyle(2.6,mixC(c,0x000000,0.35),0.75);
+      for(let k=0;k<8;k++){ const a=k*Math.PI/4;
+        g.lineBetween(cx+Math.cos(a)*w*0.16,h*0.48+Math.sin(a)*h*0.15,
+                      cx+Math.cos(a)*w*0.42,h*0.48+Math.sin(a)*h*0.40); }
+      // ojo central
+      g.fillStyle(0x140a08,1); g.fillEllipse(cx,h*0.56,w*0.52,h*0.44);
+      g.fillStyle(0xe8dcc0,1); g.fillEllipse(cx,h*0.56,w*0.44,h*0.37);
+      g.fillStyle(mixC(s.e,0x000000,0.2),1); g.fillEllipse(cx,h*0.56,w*0.26,h*0.22);
+      g.fillStyle(0x050305,1); g.fillEllipse(cx,h*0.57,w*0.13,h*0.11);
+      g.fillStyle(0xffffff,0.95); g.fillEllipse(cx-w*0.06,h*0.50,w*0.09,h*0.06);
+      g.lineStyle(2.4,0x3a2a20,1); g.strokeEllipse(cx,h*0.56,w*0.44,h*0.37);
+      // párpado
+      g.fillStyle(mixC(c,0x000000,0.15),0.9);
+      g.fillEllipse(cx,h*0.40,w*0.50,h*0.18);
+      g.lineStyle(2,OUT,0.6); g.strokeEllipse(cx,h*0.40,w*0.50,h*0.18);
+      // tentáculos inferiores
+      [-1,1].forEach(d=>{ for(let t=0;t<2;t++){
+        const x0=cx+d*w*(0.20+t*0.14);
+        g.lineStyle(8,lo,1); g.lineBetween(x0,h*0.80,x0+d*w*0.10,h*0.99);
+        g.lineStyle(5,mixC(c,0xffffff,0.15),1); g.lineBetween(x0,h*0.80,x0+d*w*0.10,h*0.99); }});
+      haloEll(g,cx,h*0.56,w*0.56,h*0.5,s.g,0.18,3);
+      return;
+    }
+    // Rootmars: bestia redonda con boca enorme y garras
+    const body=[]; for(let i=0;i<26;i++){ const a=-Math.PI/2+i*Math.PI*2/26;
+      body.push({x:cx+Math.cos(a)*w*0.42, y:h*0.40+Math.sin(a)*h*0.36}); }
+    shadePoly(g,body,lo,hi,7,-0.5,-0.85); gPoly(g,body,null,OUT,2.8); edgeLight(g,body,0xffffff,1);
+    // ojos
+    [-1,1].forEach(d=>{ g.fillStyle(0x0a0708,1); g.fillEllipse(cx+d*w*0.20,h*0.30,w*0.24,h*0.16);
+      g.fillStyle(0xffffff,0.95); g.fillEllipse(cx+d*w*0.20,h*0.30,w*0.19,h*0.12);
+      g.fillStyle(s.e,0.95); g.fillEllipse(cx+d*w*0.20,h*0.305,w*0.09,h*0.07);
+      g.fillStyle(0x050305,1); g.fillEllipse(cx+d*w*0.20,h*0.31,w*0.045,h*0.035);
+      g.fillStyle(0xffffff,0.85); g.fillEllipse(cx+d*w*0.17,h*0.275,w*0.05,h*0.03); });
+    // crestas superiores
+    g.fillStyle(mixC(c,0xffffff,0.25),1);
+    g.fillTriangle(cx,h*0.04,cx-w*0.14,h*0.22,cx+w*0.14,h*0.22);
+    g.fillStyle(mixC(c,0x000000,0.2),1); g.fillEllipse(cx,h*0.20,w*0.30,h*0.10);
+    // boca gigante
+    g.fillStyle(0x0c0506,1); g.fillEllipse(cx,h*0.74,w*0.66,h*0.44);
+    g.lineStyle(3,0x3a1018,1); g.strokeEllipse(cx,h*0.74,w*0.66,h*0.44);
+    g.fillStyle(0x8a2038,0.95); g.fillEllipse(cx,h*0.78,w*0.44,h*0.26);
+    // dientes
+    g.fillStyle(0xfff3e0,0.95);
+    for(let k=0;k<8;k++){ const x=cx-w*0.28+k*w*0.08;
+      g.fillTriangle(x,h*0.54,x+w*0.04,h*0.68,x+w*0.08,h*0.54); }
+    for(let k=0;k<7;k++){ const x=cx-w*0.24+k*w*0.08;
+      g.fillTriangle(x,h*0.94,x+w*0.04,h*0.80,x+w*0.08,h*0.94); }
+    // garras
+    [-1,1].forEach(d=>{ const x=cx+d*w*0.40;
+      g.fillStyle(lo,1); g.fillEllipse(x,h*0.60,w*0.16,h*0.26);
+      g.lineStyle(4,0x2a1418,1);
+      g.lineBetween(x,h*0.74,x+d*w*0.10,h*0.94);
+      g.fillStyle(0xfff3e0,0.95); g.fillTriangle(x+d*w*0.10,h*0.94,x+d*w*0.02,h*0.90,x+d*w*0.16,h*0.86); });
+    haloEll(g,cx,h*0.5,w*0.55,h*0.5,s.g,0.15,3);
+  },
+  // ===== SOVEREIGN (Mass Effect): pulpo-sintético con 4 patas y mandíbula =====
+  reaper(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    // patas (4) desde el cuerpo hacia abajo
+    [-1.5,-0.5,0.5,1.5].forEach((d,idx)=>{
+      const x0=cx+d*w*0.14, y0=h*0.20;
+      const mid={x:cx+d*w*0.30,y:h*0.56}, tip={x:cx+d*w*0.34,y:h*0.96};
+      const t=13, tm=9;
+      const ang=Math.atan2(mid.y-y0,mid.x-x0)+Math.PI/2;
+      const p1=[{x:x0+Math.cos(ang)*t,y:y0+Math.sin(ang)*t},{x:mid.x+Math.cos(ang)*tm,y:mid.y+Math.sin(ang)*tm},
+                {x:mid.x-Math.cos(ang)*tm,y:mid.y-Math.sin(ang)*tm},{x:x0-Math.cos(ang)*t,y:y0-Math.sin(ang)*t}];
+      shadePoly(g,p1,lo,hi,4,-0.5,-0.9); gPoly(g,p1,null,OUT,2);
+      const ang2=Math.atan2(tip.y-mid.y,tip.x-mid.x)+Math.PI/2, t2=9;
+      const p2=[{x:mid.x+Math.cos(ang2)*tm,y:mid.y+Math.sin(ang2)*tm},{x:tip.x+Math.cos(ang2)*t2,y:tip.y+Math.sin(ang2)*t2},
+                {x:tip.x-Math.cos(ang2)*t2,y:tip.y-Math.sin(ang2)*t2},{x:mid.x-Math.cos(ang2)*tm,y:mid.y-Math.sin(ang2)*tm}];
+      shadePoly(g,p2,dk,hi,4,-0.5,-0.9); gPoly(g,p2,null,OUT,2);
+      // cojinete
+      g.fillStyle(0x0a0e14,1); g.fillCircle(mid.x,mid.y,10);
+      g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillCircle(mid.x,mid.y,7.5);
+      g.fillStyle(s.e,0.95); g.fillCircle(mid.x,mid.y,3.5);
+      // garra
+      g.fillStyle(0x0c1016,1); g.fillTriangle(tip.x,tip.y,tip.x-9,tip.y+18,tip.x+9,tip.y+18);
+      g.fillStyle(s.e,0.85); g.fillTriangle(tip.x,tip.y+3,tip.x-5,tip.y+15,tip.x+5,tip.y+15);
+      // nervio luminoso
+      g.lineStyle(2.4,s.e,0.7); g.lineBetween(x0,y0,mid.x,mid.y); g.lineBetween(mid.x,mid.y,tip.x,tip.y-6); });
+    // cuerpo / casco central
+    const body=gPts([[cx,h*0.46],[cx+w*0.24,h*0.30],[cx+w*0.30,h*0.14],[cx+w*0.18,h*0.04],
+                     [cx-w*0.18,h*0.04],[cx-w*0.30,h*0.14],[cx-w*0.24,h*0.30]]);
+    shadePoly(g,body,lo,hi,7,-0.5,-0.85); gPoly(g,body,null,OUT,2.8); edgeLight(g,body,0xffffff,1.1);
+    g.lineStyle(2,mixC(c,0xffffff,0.3),0.7);
+    g.lineBetween(cx,h*0.06,cx,h*0.44);
+    g.lineBetween(cx-w*0.24,h*0.16,cx+w*0.24,h*0.16);
+    g.lineBetween(cx-w*0.27,h*0.26,cx+w*0.27,h*0.26);
+    // "rostro" luminoso
+    g.fillStyle(0x050308,1); g.fillEllipse(cx,h*0.36,w*0.34,h*0.22);
+    g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.37,w*0.24,h*0.14);
+    g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.03,h*0.35,w*0.09,h*0.05);
+    haloEll(g,cx,h*0.37,w*0.44,h*0.28,s.e,0.4,3);
+    // crestas superiores
+    g.fillStyle(0x0a0e14,1);
+    [-1,1].forEach(d=>{ g.fillTriangle(cx+d*w*0.10,h*0.06,cx+d*w*0.30,h*0.02,cx+d*w*0.14,h*0.16); });
+    g.fillStyle(mixC(c,0xffffff,0.25),1);
+    [-1,1].forEach(d=>{ g.fillTriangle(cx+d*w*0.12,h*0.07,cx+d*w*0.26,h*0.04,cx+d*w*0.14,h*0.13); });
+  },
+  // ===== ÁNGELES DE EVANGELION =====
+  angel(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    if(s.i===45){ // Ramiel: octaedro gigante con núcleo
+      const top={x:cx,y:h*0.04}, bot={x:cx,y:h*0.98},
+            l={x:cx-w*0.44,y:h*0.50}, r={x:cx+w*0.44,y:h*0.50}, m={x:cx,y:h*0.50};
+      // cara superior (dos triángulos)
+      shadePoly(g,[top,l,m],dk,hi,4,-0.5,-0.9); gPoly(g,[top,l,m],null,OUT,2.4);
+      shadePoly(g,[top,m,r],mixC(dk,0x000000,0.2),mixC(c,0xffffff,0.5),4,-0.5,-0.9); gPoly(g,[top,m,r],null,OUT,2.4);
+      // cara inferior
+      shadePoly(g,[bot,l,m],lo,dk,4,-0.5,-0.9); gPoly(g,[bot,l,m],null,OUT,2.4);
+      shadePoly(g,[bot,m,r],mixC(dk,0x000000,0.3),mixC(c,0xffffff,0.2),4,-0.5,-0.9); gPoly(g,[bot,m,r],null,OUT,2.4);
+      edgeLight(g,[top,l,bot,r],0xffffff,1.1);
+      // aristas internas
+      g.lineStyle(2,mixC(c,0xffffff,0.6),0.8);
+      g.lineBetween(top.x,top.y,bot.x,bot.y); g.lineBetween(l.x,l.y,r.x,r.y);
+      // núcleo (hexágono central)
+      const hex=circlePts(cx,h*0.50,w*0.14);
+      g.fillStyle(0x0a1424,1); gPoly(g,hex,null,OUT,2.4);
+      g.fillStyle(0x4a9cff,0.95); gPoly(g,circlePts(cx,h*0.50,w*0.10),null,OUT,0);
+      g.fillStyle(0xbfe4ff,0.95); g.fillCircle(cx,h*0.50,w*0.05);
+      g.fillStyle(0xffffff,0.95); g.fillCircle(cx,h*0.50,w*0.026);
+      haloEll(g,cx,h*0.50,w*0.5,h*0.44,0x4a9cff,0.4,3);
+      // rayos de energía (cargas)
+      g.lineStyle(2,0x8fd4ff,0.55);
+      for(let k=0;k<8;k++){ const a=k*Math.PI/4+0.39;
+        g.lineBetween(cx+Math.cos(a)*w*0.18,h*0.50+Math.sin(a)*h*0.16,
+                      cx+Math.cos(a)*w*0.40,h*0.50+Math.sin(a)*h*0.34); }
+      return;
+    }
+    if(s.i===47){ // Arael: anillos concéntricos con plumas y núcleo
+      const rr=Math.min(w,h);
+      // plumas exteriores
+      for(let k=0;k<24;k++){ const a=k*Math.PI*2/24+Math.PI/24;
+        const x0=cx+Math.cos(a)*rr*0.26, y0=h*0.46+Math.sin(a)*rr*0.26;
+        const x1=cx+Math.cos(a)*rr*0.47, y1=h*0.46+Math.sin(a)*rr*0.47;
+        gPoly(g,[{x:x0,y:y0},{x:x1,y:y1},{x:x0-Math.sin(a)*6,y:y0+Math.cos(a)*6}],
+              k%2?mixC(c,0xffffff,0.25):mixC(c,0x000000,0.15),OUT,1.6); }
+      // disco y anillos
+      const disc=circlePts(cx,h*0.46,rr*0.34);
+      shadePoly(g,disc,lo,hi,6,-0.5,-0.85); gPoly(g,disc,null,OUT,2.6);
+      g.lineStyle(3,mixC(c,0xffffff,0.5),0.85); g.strokeCircle(cx,h*0.46,rr*0.27);
+      g.lineStyle(2,lo,0.8); g.strokeCircle(cx,h*0.46,rr*0.20);
+      // radios
+      g.lineStyle(1.6,mixC(c,0xffffff,0.35),0.6);
+      for(let k=0;k<12;k++){ const a=k*Math.PI/6;
+        g.lineBetween(cx+Math.cos(a)*rr*0.20,h*0.46+Math.sin(a)*rr*0.20,
+                      cx+Math.cos(a)*rr*0.33,h*0.46+Math.sin(a)*rr*0.33); }
+      // núcleo (el "ojo")
+      g.fillStyle(0x120a14,1); g.fillCircle(cx,h*0.46,rr*0.145);
+      g.fillStyle(s.e,0.95); g.fillCircle(cx,h*0.46,rr*0.10);
+      g.fillStyle(0xffffff,0.95); g.fillCircle(cx,h*0.46,rr*0.05);
+      haloEll(g,cx,h*0.46,rr*0.5,rr*0.46,s.e,0.4,3);
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.94,w*0.34,h*0.14);
+      g.fillStyle(s.e,0.85); g.fillEllipse(cx,h*0.945,w*0.24,h*0.08);
+      return;
+    }
+    if(s.i===46){ // Zeruel: torso enorme con brazos de cinta
+      // brazos largos a los lados
+      [-1,1].forEach(d=>{
+        const x0=cx+d*w*0.30;
+        for(let k=0;k<3;k++){ const yo=h*(0.30+k*0.10);
+          g.fillStyle(k%2?mixC(c,0xffffff,0.2):mixC(c,0x000000,0.2),1);
+          g.fillRoundedRect(d>0?x0-4:x0-d*w*0.16-4,yo,d*w*0.20+8,h*0.10,7); }
+        const arm=gPts([[cx+d*w*0.26,h*0.24],[cx+d*w*0.46,h*0.34],[cx+d*w*0.44,h*0.78],
+                        [cx+d*w*0.34,h*0.96],[cx+d*w*0.24,h*0.84],[cx+d*w*0.30,h*0.50]]);
+        shadePoly(g,arm,lo,hi,6,-0.5,-0.85); gPoly(g,arm,null,OUT,2.4); edgeLight(g,arm,0xffffff,1);
+        g.lineStyle(2,OUT,0.7); g.lineBetween(cx+d*w*0.34,h*0.30,cx+d*w*0.36,h*0.90);
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.38,h*0.36,22,16);
+        g.fillStyle(s.e,0.85); g.fillEllipse(cx+d*w*0.38,h*0.365,15,10); });
+      // torso
+      const torso=gPts([[cx,h*0.97],[cx+w*0.24,h*0.76],[cx+w*0.26,h*0.34],[cx+w*0.18,h*0.12],
+                        [cx-w*0.18,h*0.12],[cx-w*0.26,h*0.34],[cx-w*0.24,h*0.76]]);
+      shadePoly(g,torso,lo,hi,7,-0.5,-0.85); gPoly(g,torso,null,OUT,2.8); edgeLight(g,torso,0xffffff,1.1);
+      // placa del pecho
+      g.fillStyle(mixC(c,0xffffff,0.3),1);
+      g.fillTriangle(cx,h*0.20,cx-w*0.18,h*0.56,cx+w*0.18,h*0.56);
+      g.lineStyle(2,OUT,0.8); g.strokeTriangle(cx,h*0.20,cx-w*0.18,h*0.56,cx+w*0.18,h*0.56);
+      g.fillStyle(0x141a22,0.9); g.fillEllipse(cx,h*0.66,w*0.26,h*0.14);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.665,w*0.17,h*0.08);
+      // máscara / cabeza
+      g.fillStyle(0x0d1116,1); g.fillEllipse(cx,h*0.86,w*0.34,h*0.20);
+      g.fillStyle(0xe8e4d8,1); g.fillEllipse(cx,h*0.86,w*0.27,h*0.15);
+      g.fillStyle(0x0a0e14,1); g.fillRect(cx-w*0.10,h*0.83,w*0.20,7);
+      g.fillStyle(0xff5a3a,0.9); g.fillRect(cx-w*0.08,h*0.842,w*0.16,4);
+      g.lineStyle(1.6,0x8a8578,1); g.strokeEllipse(cx,h*0.86,w*0.27,h*0.15);
+      return;
+    }
+    // Sachiel (44) y MP-Eva (51): humanoides en vista de aproximación
+    const mp={51:1}[s.i];
+    // brazos plegados (como garras al frente)
+    [-1,1].forEach(d=>{
+      const arm=gPts([[cx+d*w*0.24,h*0.34],[cx+d*w*0.44,h*0.46],[cx+d*w*0.38,h*0.74],
+                      [cx+d*w*0.20,h*0.66],[cx+d*w*0.16,h*0.44]]);
+      shadePoly(g,arm,lo,hi,6,-0.5,-0.85); gPoly(g,arm,null,OUT,2.4); edgeLight(g,arm,0xffffff,1);
+      // extremo de la "cinta"/garra
+      g.fillStyle(mixC(dk,0x000000,0.2),1);
+      g.fillRoundedRect(cx+d*w*0.30-10,h*0.72,20,h*0.24,8);
+      g.fillStyle(mixC(c,0xffffff,0.3),1);
+      g.fillRoundedRect(cx+d*w*0.30-8,h*0.73,16,h*0.22,7);
+      g.fillStyle(mp?0xd8d4c8:0x101418,1);
+      g.fillTriangle(cx+d*w*0.30,h*0.98,cx+d*w*0.30-9,h*0.86,cx+d*w*0.30+9,h*0.86);
+      g.fillStyle(s.e,0.9); g.fillCircle(cx+d*w*0.30,h*0.84,4);
+      g.lineStyle(2,OUT,0.65); g.lineBetween(cx+d*w*0.34,h*0.40,cx+d*w*0.33,h*0.70); });
+    // torso
+    const torso=gPts([[cx,h*0.94],[cx+w*0.22,h*0.72],[cx+w*0.24,h*0.30],[cx+w*0.16,10],
+                      [cx-w*0.16,10],[cx-w*0.24,h*0.30],[cx-w*0.22,h*0.72]]);
+    shadePoly(g,torso,lo,hi,7,-0.5,-0.85); gPoly(g,torso,null,OUT,2.8); edgeLight(g,torso,0xffffff,1.1);
+    if(mp){
+      // MP-Eva: cuerpo blanquecino, costillas, mandíbula alargada
+      g.fillStyle(0xe8e4da,1);
+      g.fillTriangle(cx,h*0.16,cx-w*0.16,h*0.52,cx+w*0.16,h*0.52);
+      g.lineStyle(1.8,0x9a968a,1); g.strokeTriangle(cx,h*0.16,cx-w*0.16,h*0.52,cx+w*0.16,h*0.52);
+      g.lineStyle(2,0x8a8678,0.9);
+      for(let k=1;k<5;k++){ const y=h*(0.34+k*0.10), ww=w*(0.22-k*0.02);
+        g.lineBetween(cx-ww,y,cx-ww*0.4,y+h*0.05); g.lineBetween(cx+ww,y,cx+ww*0.4,y+h*0.05); }
+      g.fillStyle(0x0d1116,1); g.fillEllipse(cx,h*0.78,w*0.36,h*0.24);
+      g.fillStyle(0xd8d4c8,1); g.fillEllipse(cx,h*0.76,w*0.30,h*0.16);
+      // mandíbula "alas"
+      [-1,1].forEach(d=>{ gPoly(g,gPts([[cx+d*w*0.12,h*0.80],[cx+d*w*0.44,h*0.90],[cx+d*w*0.30,h*0.99],[cx+d*w*0.10,h*0.92]]),
+                                0xd8d4c8,OUT,2); });
+      g.fillStyle(0xffffff,0.95); g.fillEllipse(cx,h*0.74,w*0.16,h*0.05);
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.86,w*0.30,h*0.09);
+      g.fillStyle(0xffffff,0.95);
+      for(let k=0;k<7;k++){ const x=cx-w*0.13+k*w*0.043;
+        g.fillTriangle(x,h*0.82,x+w*0.02,h*0.90,x+w*0.04,h*0.82); }
+      g.fillStyle(0x141a22,1); g.fillEllipse(cx,h*0.46,w*0.30,h*0.16);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.465,w*0.20,h*0.09);
+    } else {
+      // Sachiel: pecho con patrón rojo, máscara blanca con cuernos
+      g.fillStyle(mixC(c,0xffffff,0.2),1);
+      g.fillTriangle(cx,h*0.18,cx-w*0.20,h*0.62,cx+w*0.20,h*0.62);
+      g.lineStyle(2,OUT,0.8); g.strokeTriangle(cx,h*0.18,cx-w*0.20,h*0.62,cx+w*0.20,h*0.62);
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.50,w*0.34,h*0.20);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.505,w*0.24,h*0.13);
+      g.fillStyle(0xffffff,0.9); g.fillEllipse(cx,h*0.49,w*0.10,h*0.05);
+      // máscara
+      g.fillStyle(0x0d1116,1); g.fillEllipse(cx,h*0.76,w*0.42,h*0.24);
+      g.fillStyle(0xf0ece0,1); g.fillEllipse(cx,h*0.75,w*0.35,h*0.18);
+      // "cuernos"
+      [-1,1].forEach(d=>{ gPoly(g,gPts([[cx+d*w*0.14,h*0.70],[cx+d*w*0.34,h*0.62],[cx+d*w*0.20,h*0.80]]),
+                                0xf0ece0,OUT,2); });
+      // hendiduras del rostro
+      g.fillStyle(0x0a0e14,1);
+      [-1,1].forEach(d=>{ g.fillEllipse(cx+d*w*0.13,h*0.74,w*0.12,h*0.07); });
+      g.fillStyle(s.e,0.9);
+      [-1,1].forEach(d=>{ g.fillEllipse(cx+d*w*0.13,h*0.745,w*0.07,h*0.04); });
+      g.fillStyle(0x0a0e14,1); g.fillRect(cx-w*0.14,h*0.84,w*0.28,7);
+      g.fillStyle(0xffffff,0.95);
+      for(let k=0;k<6;k++){ const x=cx-w*0.12+k*w*0.047;
+        g.fillTriangle(x,h*0.845,x+w*0.02,h*0.91,x+w*0.04,h*0.845); }
+    }
+    // núcleo luminoso al final del torso
+    haloEll(g,cx,h*0.40,w*0.4,h*0.3,s.g,0.28,3);
+  },
+  // ===== MECAS COLOSSALES: Neo Zeong / Psycho Gundam / α Azieru / Anti-Spiral =====
+  mecha(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    const st={49:'psycho',50:'azieru',48:'neoz',54:'antisp'}[s.i];
+    if(st==='psycho'){
+      // Psycho Gundam: MSA mobile armor con bladder-doors enormes
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.20,h*0.08],[cx+d*w*0.50,h*0.16],[cx+d*w*0.50,h*0.72],
+                                        [cx+d*w*0.30,h*0.86],[cx+d*w*0.18,h*0.60]]);
+        shadePoly(g,p,lo,hi,7,-0.5,-0.85); gPoly(g,p,null,OUT,2.6); edgeLight(g,p,0xffffff,1);
+        g.lineStyle(1.8,OUT,0.7);
+        for(let k=1;k<5;k++) g.lineBetween(cx+d*w*0.20,h*0.10+k*h*0.15,cx+d*w*0.48,h*0.18+k*h*0.14);
+        // vents y ojos mono
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.38,h*0.34,w*0.16,h*0.10);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.38,h*0.345,w*0.11,h*0.055);
+        g.fillStyle(0x0a0e14,1); g.fillRoundedRect(cx+d*w*0.30-7,h*0.54,14,h*0.22,5);
+        g.fillStyle(mixC(c,0xffffff,0.2),1); g.fillRoundedRect(cx+d*w*0.30-5.5,h*0.55,11,h*0.20,4);
+        g.fillStyle(0xff9a2a,0.9); g.fillCircle(cx+d*w*0.30,h*0.62,4); });
+      // torso central
+      const torso=gPts([[cx,h*0.98],[cx+w*0.22,h*0.78],[cx+w*0.20,h*0.24],[cx+w*0.12,8],
+                        [cx-w*0.12,8],[cx-w*0.20,h*0.24],[cx-w*0.22,h*0.78]]);
+      shadePoly(g,torso,lo,hi,7,-0.5,-0.85); gPoly(g,torso,null,OUT,2.8); edgeLight(g,torso,0xffffff,1.1);
+      // pecho y mono-eye
+      g.fillStyle(0x0c1016,1); g.fillEllipse(cx,h*0.66,w*0.30,h*0.18);
+      g.fillStyle(mixC(c,0xffffff,0.25),1); g.fillEllipse(cx,h*0.655,w*0.24,h*0.12);
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.62,w*0.24,h*0.09);
+      g.fillStyle(s.e,0.95); g.fillEllipse(cx,h*0.625,w*0.17,h*0.05);
+      g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.04,h*0.612,w*0.06,h*0.02);
+      // faldón / pistolas
+      g.fillStyle(lo,1); g.fillRoundedRect(cx-w*0.26,h*0.84,w*0.52,h*0.14,8);
+      g.fillStyle(mixC(c,0xffffff,0.2),1); g.fillRoundedRect(cx-w*0.24,h*0.85,w*0.48,h*0.08,6);
+      // escotillas
+      g.fillStyle(0x12161c,1);
+      [-1,1].forEach(d=>{ g.fillRect(cx+d*w*0.16-6,h*0.34,12,h*0.16); });
+      g.fillStyle(s.e,0.85);
+      [-1,1].forEach(d=>{ g.fillCircle(cx+d*w*0.16,h*0.42,3.4); });
+      return;
+    }
+    if(st==='azieru'){
+      // α Azieru: mobile armor con dos pinzas-binder gigantes
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.18,h*0.14],[cx+d*w*0.46,h*0.24],[cx+d*w*0.50,h*0.58],
+                                        [cx+d*w*0.40,h*0.92],[cx+d*w*0.26,h*0.84],[cx+d*w*0.30,h*0.44]]);
+        shadePoly(g,p,lo,hi,7,-0.5,-0.85); gPoly(g,p,null,OUT,2.6); edgeLight(g,p,0xffffff,1);
+        // pinza frontal
+        const claw=gPts([[cx+d*w*0.34,h*0.84],[cx+d*w*0.50,h*0.96],[cx+d*w*0.36,h*1.0],
+                         [cx+d*w*0.24,h*0.94],[cx+d*w*0.26,h*0.84]]);
+        shadePoly(g,claw,dk,hi,5,-0.5,-0.9); gPoly(g,claw,null,OUT,2.4);
+        g.fillStyle(0x0a0e14,1); g.fillEllipse(cx+d*w*0.37,h*0.90,16,20);
+        g.fillStyle(s.e,0.9); g.fillEllipse(cx+d*w*0.37,h*0.905,10,13);
+        g.lineStyle(2,OUT,0.7); g.lineBetween(cx+d*w*0.28,h*0.20,cx+d*w*0.34,h*0.80);
+        g.fillStyle(0x12161c,1); g.fillRoundedRect(cx+d*w*0.36-8,h*0.34,16,h*0.34,5);
+        g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillRoundedRect(cx+d*w*0.36-6.5,h*0.35,13,h*0.32,4);
+        g.fillStyle(s.e,0.85);
+        for(let k=0;k<4;k++) g.fillCircle(cx+d*w*0.36,h*0.40+k*h*0.08,3); });
+      // cuerpo central
+      const torso=gPts([[cx,h*0.92],[cx+w*0.20,h*0.70],[cx+w*0.22,h*0.26],[cx+w*0.13,8],
+                        [cx-w*0.13,8],[cx-w*0.22,h*0.26],[cx-w*0.20,h*0.70]]);
+      shadePoly(g,torso,lo,hi,7,-0.5,-0.85); gPoly(g,torso,null,OUT,2.8); edgeLight(g,torso,0xffffff,1.1);
+      g.fillStyle(0x0c1016,1); g.fillEllipse(cx,h*0.44,w*0.30,h*0.24);
+      g.fillStyle(mixC(c,0xffffff,0.25),1); g.fillEllipse(cx,h*0.435,w*0.24,h*0.17);
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.40,w*0.22,h*0.10);
+      g.fillStyle(s.e,0.95); g.fillEllipse(cx,h*0.405,w*0.15,h*0.055);
+      g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.03,h*0.392,w*0.05,h*0.02);
+      // seno-garra inferior y misiles
+      g.fillStyle(lo,1); g.fillRoundedRect(cx-w*0.22,h*0.74,w*0.44,h*0.14,7);
+      g.fillStyle(mixC(c,0xffffff,0.2),1); g.fillRoundedRect(cx-w*0.20,h*0.75,w*0.40,h*0.07,5);
+      g.fillStyle(0x12161c,1);
+      for(let k=0;k<5;k++) g.fillCircle(cx-w*0.14+k*w*0.07,h*0.79,4);
+      return;
+    }
+    if(st==='neoz'){
+      // Neo Zeong: armadura masiva con hombros-cañón y "dedos" inferiores
+      [-1,1].forEach(d=>{ const p=gPts([[cx+d*w*0.22,h*0.06],[cx+d*w*0.50,h*0.14],[cx+d*w*0.50,h*0.50],
+                                        [cx+d*w*0.34,h*0.62],[cx+d*w*0.20,h*0.46]]);
+        shadePoly(g,p,lo,hi,7,-0.5,-0.85); gPoly(g,p,null,OUT,2.6); edgeLight(g,p,0xffffff,1);
+        // cañones de hombro
+        for(let k=0;k<3;k++){ const x=cx+d*w*0.30+k*d*w*0.07;
+          g.fillStyle(0x0a0e14,1); g.fillRoundedRect(x-7,h*0.10,14,h*0.36,6);
+          g.fillStyle(mixC(c,0xffffff,0.3),1); g.fillRoundedRect(x-5.5,h*0.11,11,h*0.34,5);
+          g.fillStyle(0x05070b,1); g.fillEllipse(x,h*0.46,11,8);
+          g.fillStyle(s.e,0.85); g.fillEllipse(x,h*0.462,7,4.5); }
+        g.lineStyle(1.6,OUT,0.6); g.lineBetween(cx+d*w*0.24,h*0.14,cx+d*w*0.46,h*0.54); });
+      // torso
+      const torso=gPts([[cx,h*0.96],[cx+w*0.26,h*0.74],[cx+w*0.24,h*0.30],[cx+w*0.14,8],
+                        [cx-w*0.14,8],[cx-w*0.24,h*0.30],[cx-w*0.26,h*0.74]]);
+      shadePoly(g,torso,lo,hi,7,-0.5,-0.85); gPoly(g,torso,null,OUT,2.8); edgeLight(g,torso,0xffffff,1.1);
+      // núcleo iridiscente
+      g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.46,w*0.36,h*0.30);
+      g.fillStyle(0x1d2530,1); g.fillEllipse(cx,h*0.46,w*0.30,h*0.24);
+      g.fillStyle(s.e,0.9); g.fillEllipse(cx,h*0.47,w*0.20,h*0.15);
+      g.fillStyle(0xffffff,0.9); g.fillEllipse(cx-w*0.04,h*0.44,w*0.09,h*0.05);
+      haloEll(g,cx,h*0.47,w*0.46,h*0.36,s.e,0.45,3);
+      // cinturón "dedos" inferiores
+      g.fillStyle(lo,1);
+      for(let k=-3;k<=3;k++){ const x=cx+k*w*0.10;
+        g.fillRoundedRect(x-9,h*0.78,18,h*0.18,7); }
+      g.fillStyle(mixC(c,0xffffff,0.25),1);
+      for(let k=-3;k<=3;k++){ const x=cx+k*w*0.10;
+        g.fillRoundedRect(x-7.5,h*0.79,15,h*0.16,6); }
+      g.fillStyle(s.e,0.85);
+      for(let k=-3;k<=3;k++){ const x=cx+k*w*0.10; g.fillCircle(x,h*0.94,4); }
+      return;
+    }
+    // Anti-Spiral (54): núcleo oscuro con máscara blanca y tentáculos
+    const core=[]; for(let i=0;i<24;i++){ const a=-Math.PI/2+i*Math.PI*2/24;
+      core.push({x:cx+Math.cos(a)*w*0.34, y:h*0.40+Math.sin(a)*h*0.32}); }
+    shadePoly(g,core,lo,hi,7,-0.5,-0.85); gPoly(g,core,null,OUT,2.8); edgeLight(g,core,0xffffff,1);
+    // máscara blanca
+    g.fillStyle(0x0a0e14,1); g.fillEllipse(cx,h*0.44,w*0.42,h*0.34);
+    g.fillStyle(0xf0ece0,1); g.fillEllipse(cx,h*0.43,w*0.35,h*0.27);
+    g.lineStyle(1.6,0x8a8678,1); g.strokeEllipse(cx,h*0.43,w*0.35,h*0.27);
+    g.fillStyle(0x0a0e14,1);
+    [-1,1].forEach(d=>{ gPoly(g,gPts([[cx+d*w*0.04,h*0.34],[cx+d*w*0.24,h*0.38],[cx+d*w*0.20,h*0.48],[cx+d*w*0.04,h*0.44]]),
+                              0x0a0e14,OUT,1.4); });
+    g.fillStyle(s.e,0.95);
+    [-1,1].forEach(d=>{ g.fillEllipse(cx+d*w*0.14,h*0.415,w*0.12,h*0.05); });
+    g.fillStyle(0x0a0e14,1); g.fillRect(cx-w*0.16,h*0.54,w*0.32,8);
+    g.fillStyle(0xffffff,0.95);
+    for(let k=0;k<7;k++){ const x=cx-w*0.14+k*w*0.045;
+      g.fillTriangle(x,h*0.545,x+w*0.02,h*0.62,x+w*0.04,h*0.545); }
+    // tentáculos
+    [-1.6,-0.6,0.6,1.6].forEach((d,k)=>{ const x0=cx+d*w*0.16;
+      g.lineStyle(11,lo,1); g.lineBetween(x0,h*0.66,cx+d*w*0.34,h*0.98);
+      g.lineStyle(7,mixC(c,0xffffff,0.3),1); g.lineBetween(x0,h*0.66,cx+d*w*0.34,h*0.98);
+      g.fillStyle(s.e,0.9); g.fillCircle(cx+d*w*0.34,h*0.98,5.5); });
+    haloEll(g,cx,h*0.44,w*0.5,h*0.42,s.e,0.25,3);
+  },
+  // ===== TRÍPIODE MARCIANO (La Guerra de los Mundos) =====
+  tripod(g,s){
+    const w=s.w,h=s.h,cx=w/2,c=s.color,dk=s.dark,hi=mixC(c,0xffffff,0.35),lo=mixC(dk,0x000000,0.4);
+    // tres patas articuladas
+    [-1,0,1].forEach(k=>{
+      const dx=k===0?0:k*w*0.30, xTip=cx+dx+(k===0?0:Math.sign(dx)*w*0.10);
+      const j1={x:cx+k*w*0.16,y:h*0.42}, j2={x:cx+dx*1.35,y:h*0.70};
+      // muslo
+      g.lineStyle(14,lo,1); g.lineBetween(cx+k*w*0.12,h*0.30,j1.x,j1.y);
+      g.lineStyle(9,mixC(c,0xffffff,0.2),1); g.lineBetween(cx+k*w*0.12,h*0.30,j1.x,j1.y);
+      // pierna
+      g.lineStyle(11,lo,1); g.lineBetween(j1.x,j1.y,j2.x,j2.y);
+      g.lineStyle(6.5,mixC(c,0xffffff,0.3),1); g.lineBetween(j1.x,j1.y,j2.x,j2.y);
+      // pie
+      g.lineStyle(7,lo,1); g.lineBetween(j2.x,j2.y,xTip,h*0.99);
+      g.lineStyle(4,mixC(c,0xffffff,0.25),1); g.lineBetween(j2.x,j2.y,xTip,h*0.99);
+      // articulaciones
+      g.fillStyle(0x0a0e14,1); g.fillCircle(j1.x,j1.y,10); g.fillCircle(j2.x,j2.y,9);
+      g.fillStyle(mixC(c,0xffffff,0.35),1); g.fillCircle(j1.x,j1.y,7); g.fillCircle(j2.x,j2.y,6);
+      g.fillStyle(s.e,0.9); g.fillCircle(j1.x,j1.y,3); g.fillCircle(j2.x,j2.y,2.6);
+      // garras del pie
+      g.fillStyle(mixC(c,0x000000,0.2),1);
+      [-1,1].forEach(d=> g.fillTriangle(xTip,h*0.99,xTip+d*13,h*0.95,xTip+d*4,h*0.90));
+      // textura de anillos
+      g.lineStyle(2,OUT,0.5); g.lineBetween(j1.x,j1.y,j2.x,j2.y);
+    });
+    // cabeza / cápsula
+    const head=[]; for(let i=0;i<24;i++){ const a=-Math.PI/2+i*Math.PI*2/24;
+      head.push({x:cx+Math.cos(a)*w*0.26, y:h*0.22+Math.sin(a)*h*0.20}); }
+    shadePoly(g,head,lo,hi,7,-0.5,-0.85); gPoly(g,head,null,OUT,2.8); edgeLight(g,head,0xffffff,1.1);
+    // "techo" de la cúpula
+    g.fillStyle(mixC(dk,0x000000,0.25),1); g.fillEllipse(cx,h*0.14,w*0.36,h*0.16);
+    g.lineStyle(1.6,hi,0.5); g.strokeEllipse(cx,h*0.14,w*0.36,h*0.16);
+    // el ojo (hacia abajo, buscando al jugador)
+    g.fillStyle(0x05070b,1); g.fillEllipse(cx,h*0.30,w*0.34,h*0.20);
+    g.lineStyle(2.4,0x2a3038,1); g.strokeEllipse(cx,h*0.30,w*0.34,h*0.20);
+    g.fillStyle(s.e,0.95); g.fillEllipse(cx,h*0.305,w*0.24,h*0.13);
+    g.fillStyle(mixC(s.e,0xffffff,0.55),0.95); g.fillEllipse(cx,h*0.295,w*0.13,h*0.06);
+    g.fillStyle(0xffffff,0.95); g.fillEllipse(cx-w*0.05,h*0.275,w*0.06,h*0.03);
+    haloEll(g,cx,h*0.30,w*0.44,h*0.26,s.e,0.5,3);
+    // mástiles y tuberías
+    g.lineStyle(3,lo,0.9); g.lineBetween(cx-w*0.20,h*0.10,cx-w*0.30,h*0.02);
+    g.lineBetween(cx+w*0.20,h*0.10,cx+w*0.30,h*0.02);
+    g.fillStyle(s.e,0.9); g.fillCircle(cx-w*0.30,h*0.02,4); g.fillCircle(cx+w*0.30,h*0.02,4);
+    // anillos del casco
+    g.lineStyle(2,mixC(c,0xffffff,0.3),0.6);
+    for(let k=1;k<4;k++) g.strokeEllipse(cx,h*0.22,w*(0.26-k*0.05),h*(0.20-k*0.04));
+    // "hilo" verde (rayo) opcional
+    g.lineStyle(2.6,0x7dff9a,0.5);
+    g.lineBetween(cx-w*0.24,h*0.34,cx-w*0.40,h*0.56);
+    g.lineBetween(cx+w*0.24,h*0.34,cx+w*0.40,h*0.56);
+  },
+};
+
 function drawBossFromSpec(g,s,dl=0){
   const cx=s.w/2, cy=s.h/2;
   haloEll(g,cx,cy,s.w*0.5,s.h*0.5,s.glow,0.12,3);
+  if(s.famous){ const fn=FAMOUS_DRAW[s.arch];
+    if(fn){ fn(g,s); drawBossDamage(g,s,dl); return; }
+    // sin dibujo específico todavía: usa el chasis genérico más parecido
+    const fb={wedge:hullArrow, cube:hullFortress, sphere:hullOrb, planet:hullOrb, saucer:hullSaucer,
+      cruiser:hullCruiser, bird:hullCruiser, core:hullWide, moai:hullFortress, organic:hullOrganic,
+      tank:hullFortress, ufo:hullSaucer, pod:hullOrb, ring:hullOrb, serpent:hullOrganic,
+      reaper:hullOrganic, angel:hullStar, mecha:hullFortress, cylon:hullSaucer, tripod:hullFortress}[s.arch]||hullArrow;
+    fb(g,s); drawBossDamage(g,s,dl); return; }
   if(s.arch==='overlord'){ drawBossOverlord(g,s); drawBossDamage(g,s,dl); bossRings(g,s); return; }
   drawBossWings(g,s);
   const hull=HULL_DRAW[s.arch]||hullArrow;
@@ -716,21 +2322,24 @@ function drawBossFromSpec(g,s,dl=0){
   bossRings(g,s);
 }
 
-// ===== AJUSTE GLOBAL: oleadas con huecos + jefe único por nivel (progresión móvil) =====
+// ===== OLEADAS: 6 por nivel, rampa suave (ola1→ola6) y base que sube (7→29) =====
 LEVELS.forEach((L,i)=>{
   const sp=BOSS_SPECS[i]||{};
   L.boss = true;
   L.bossType = 'boss_'+i;
   L.bossName = sp.name || L.name;
-  // Oleadas más densas y frecuentes (más enemigos por nivel)
+  L.bossSub  = sp.sub || '';
   const t = i / 59.0;
-  L.wave = Math.max(4, Math.min(9, 4 + Math.floor(i/8)));
-  L.waveGap = Math.max(700, 2600 - i*30); // hueco entre oleadas
-  L.maxAlive = Math.max(6, Math.min(16, 6 + Math.floor(i/6)));
+  L.waves = 6;
+  const base = Math.max(7, Math.min(29, Math.round(7 + i*0.38)));
+  L.waveCounts = [];
+  for (let w=1; w<=L.waves; w++) L.waveCounts.push(Math.max(4, Math.min(34, Math.round(base*(0.62 + 0.14*w)))));
+  L.wave = L.waveCounts[0];                      // enemigos de la 1ª ola
+  L.count = L.waveCounts.reduce((a,b)=>a+b,0);   // total del nivel (45 → ~180)
+  L.waveGap = Math.max(700, 2600 - i*30);        // respiro tras cada ola
+  L.maxAlive = Math.max(8, Math.min(22, 8 + Math.floor(i/2.6)));
   // Spawn (ms entre enemigos): 850 baja a ~260
   L.spawn = Math.max(260, Math.min(850, 850 - t*590));
-  // Cantidad total de enemigos: sube de 22 a ~120
-  L.count = Math.max(L.wave+4, Math.round(22 + i*1.7));
   L.maxEBullets = Math.max(12, Math.min(26, 12 + Math.floor(i/4)));
 });
 
@@ -801,6 +2410,202 @@ function drawPlayerShip(g, key, color) {
     g.fillStyle(0x1a2230,1); g.fillRect(12,52,8,8); g.fillRect(24,52,8,8);
     g.fillStyle(0xff6600,1); g.fillRect(13,56,6,5); g.fillRect(25,56,6,5);
     g.fillStyle(0xffaa00,0.8); g.fillRect(14,57,4,3); g.fillRect(26,57,4,3);
+
+  // ===================== NAVES LEGENDARIAS =====================
+  } else if (key==='xwing') {
+    // X-Wing "Roja 5" de Luke Skywalker: 4 alas en X, 4 cañones, R2-D2, 4 motores
+    const hD=0x7c858f, hL=0xf6f9fb, red=0xcc2b20;
+    const wings=[
+      [[23,19],[7,11],[4,18],[23,31]],      // delantera izquierda
+      [[23,33],[6,44],[4,53],[24,43]],      // trasera izquierda
+      [[33,19],[49,11],[52,18],[33,31]],    // delantera derecha
+      [[33,33],[50,44],[52,53],[32,43]]     // trasera derecha
+    ];
+    wings.forEach(w=>{
+      const p=gPts(w);
+      shadePoly(g,p,hD,hL,5,-0.6,-0.8);
+      gPoly(g,p,null,OUT,1.4);
+      edgeLight(g,p,0xffffff,1);
+    });
+    // Franjas rojas de la Roja 5
+    g.fillStyle(red,0.95); g.fillPoints(gPts([[9,15],[20,21],[20,25],[9,19]]),true);
+    g.fillPoints(gPts([[47,15],[36,21],[36,25],[47,19]]),true);
+    g.fillStyle(red,0.8);  g.fillPoints(gPts([[8,45],[19,40],[19,43],[8,48]]),true);
+    g.fillPoints(gPts([[48,45],[37,40],[37,43],[48,48]]),true);
+    // Fuselaje con morro puntiagudo
+    const fus=gPts([[28,0],[33,9],[33,38],[23,38],[23,9]]);
+    shadePoly(g,fus,0x8a929c,0xfbfdff,7,-0.35,-1.1);
+    gPoly(g,fus,null,OUT,1.6);
+    g.lineStyle(0.9,0x5a626c,0.6); g.lineBetween(28,5,28,36);
+    g.lineStyle(0.9,0xa8b1bb,0.45); g.lineBetween(25,11,25,36); g.lineBetween(31,11,31,36);
+    // 4 cañones láser, uno por punta de ala
+    cannonBarrel(g,6,0,13,3.4,0xb2bac4);
+    cannonBarrel(g,50,0,13,3.4,0xb2bac4);
+    cannonBarrel(g,5,31,17,3.0,0xa6aeb8);
+    cannonBarrel(g,51,31,17,3.0,0xa6aeb8);
+    g.fillStyle(0x66e0ff,0.9); g.fillCircle(6,1.2,1.7); g.fillCircle(50,1.2,1.7);
+    // 4 motores en las raíces de las alas
+    [[14,42],[22,44],[34,44],[42,42]].forEach(pr=>{
+      const x=pr[0], y=pr[1];
+      g.fillStyle(0x333b45,1); g.fillRoundedRect(x-3.6,y,7.2,17,3);
+      g.fillStyle(0xd2d9e1,1); g.fillRoundedRect(x-3,y,6,16,3);
+      g.fillStyle(0x8d959f,1); g.fillRoundedRect(x-3,y,2.4,16,3);
+      g.fillStyle(0x5b6570,0.9); g.fillRect(x-3,y+11,6,1.2);
+      engineNozzle(g,x,y+14,6.4,0x59c8ff);
+    });
+    // Cabina acristalada + R2-D2
+    glassCockpit(g,28,25,12,15,0x63c8ff);
+    g.lineStyle(1,0x39414c,0.95); g.strokeEllipse(28,25,12,15);
+    g.fillStyle(0x0b0f14,1); g.fillCircle(28,37.5,5.4);
+    g.fillStyle(0xd9dee4,1); g.fillCircle(28,37.5,4.7);
+    g.fillStyle(0x2f6fd0,1); g.fillRoundedRect(25.4,35,5.2,2.4,1);
+    g.fillStyle(0x2f6fd0,0.9); g.fillCircle(29.5,39,1.5);
+    g.fillStyle(0xd93a3a,0.95); g.fillCircle(26.5,38,1.1);
+
+  } else if (key==='tie') {
+    // TIE Advanced x1 de Darth Vader: cabina esférica + alas hexagonales
+    const wingGrid=(x0,x1)=>{
+      g.lineStyle(0.8,0x7d8896,0.5);
+      for(let k=1;k<4;k++){ const xx=x0+2+k*((x1-x0-4)/4); g.lineBetween(xx,15,xx,49); }
+      for(let k=1;k<6;k++){ const yy=15+k*5.8; g.lineBetween(x0+2,yy,x1-2,yy); }
+    };
+    const wings=[gPts([[10,4],[18,12],[18,52],[10,60],[2,52],[2,12]]),
+                 gPts([[50,4],[58,12],[58,52],[50,60],[42,52],[42,12]])];
+    wings.forEach((p,idx)=>{
+      shadePoly(g,p,0x0d1016,0x3a4350,6,-0.4,-0.7);
+      wingGrid(idx===0?2:42, idx===0?18:58);
+      g.lineStyle(1.5,0x8b95a3,0.95); g.strokePoints(p,true);
+      edgeLight(g,p,0xdfe7f0,1);
+    });
+    // Pilones que unen alas y cabina
+    [[18,27,7,10],[35,27,7,10]].forEach(pr=>{
+      g.fillStyle(0x0d1016,1); g.fillRect(pr[0],pr[1],pr[2],pr[3]);
+      g.fillStyle(0x525c69,1); g.fillRect(pr[0]+1,pr[1]+1,pr[2]-2,pr[3]-2);
+      g.fillStyle(0x8b95a3,1); g.fillRect(pr[0]+1,pr[1]+1,2,pr[3]-2);
+    });
+    // Cabina esférica
+    const ball=circlePts(30,32,13);
+    shadePoly(g,ball,0x1d222a,0x767f8c,7,-0.5,-0.85);
+    gPoly(g,ball,null,OUT,1.7);
+    edgeLight(g,ball,0xe8eef5,1.2);
+    // Ventana hexagonal (frente)
+    const hex=gPts([[30,14],[35.5,17],[35.5,23],[30,26],[24.5,23],[24.5,17]]);
+    gPoly(g,hex,0x070b10,0x9aa5b2,1.3);
+    const hexIn=gPts([[30,16],[33.8,18],[33.8,22],[30,24],[26.2,22],[26.2,18]]);
+    g.fillStyle(0x0f1a26,1); g.fillPoints(hexIn,true);
+    g.fillStyle(0x74ccff,0.85);
+    g.fillPoints(gPts([[30,16.6],[33.2,18.3],[33.2,21],[30,22.4]]),true);
+    g.lineStyle(0.9,0x0a0f16,1); g.lineBetween(30,16,30,24);
+    g.lineBetween(26.2,18,33.8,18); g.lineBetween(26.2,22,33.8,22);
+    // Acentos rojos de Vader
+    g.fillStyle(0xff2b2b,0.9); g.fillRoundedRect(26,47,8,1.8,1);
+    g.fillStyle(0xff5555,0.7); g.fillCircle(30,45,1.6);
+
+  } else if (key==='interprise') {
+    // USS Enterprise NCC-1701: platillo, casco de ingeniería, 2 nacelas
+    const ell=(cx,cy,rx,ry,n)=>{ const p=[]; n=n||22;
+      for(let i=0;i<n;i++){ const a=-Math.PI/2+i*Math.PI*2/n; p.push({x:cx+Math.cos(a)*rx, y:cy+Math.sin(a)*ry}); }
+      return p; };
+    const hD=0x8d939b, hL=0xeef1f5, red=0xc9302c, blu=0x2b5fd0;
+    // Nacelas de warp (izquierda y derecha)
+    [10,56].forEach(x=>{
+      g.fillStyle(0x232930,1); g.fillRoundedRect(x-4.8,42,9.6,35,4.8);
+      shadePoly(g,ell(x,59.5,4.2,16),0x8a9098,0xf2f5f9,5,-0.5,-0.9);
+      gPoly(g,ell(x,59.5,4.2,16),null,OUT,1.3);
+      // Rejilla azul del motor warp
+      g.fillStyle(0x1f5fd8,0.9); g.fillRoundedRect(x-3,50,6,24,2);
+      g.lineStyle(0.7,0x9fd0ff,0.7);
+      for(let k=1;k<6;k++) g.lineBetween(x-3,50+k*4,x+3,50+k*4);
+      // Colector Bussard (frente)
+      g.fillStyle(0x0f131a,1); g.fillEllipse(x,43.5,9.6,7.5);
+      g.fillStyle(0xff5a1f,0.95); g.fillEllipse(x,44,7.6,5.8);
+      g.fillStyle(0xffc36a,0.9); g.fillEllipse(x,43.2,4.4,3.2);
+      g.fillStyle(0xfff6d4,0.95); g.fillEllipse(x-1.3,42.8,2,1.6);
+    });
+    // Pilones
+    const pylL=gPts([[25,52],[13,46],[11,53],[25,59]]);
+    const pylR=gPts([[41,52],[53,46],[55,53],[41,59]]);
+    [pylL,pylR].forEach(p=>{ shadePoly(g,p,hD,hL,4,-0.5,-0.8); gPoly(g,p,null,OUT,1.3); });
+    // Casco de ingeniería
+    const eng=ell(33,57,8.5,15);
+    shadePoly(g,eng,0x848a92,0xf0f3f7,6,-0.6,-0.95);
+    gPoly(g,eng,null,OUT,1.5);
+    // Plato deflector naranja (frente del casco)
+    g.fillStyle(0x1a1e24,1); g.fillEllipse(33,45,11,8);
+    g.fillStyle(0xffa32a,0.95); g.fillEllipse(33,45.5,9,6.4);
+    g.fillStyle(0xffd68a,0.9); g.fillEllipse(33,45,6,4);
+    g.fillStyle(0xfff2cf,0.85); g.fillEllipse(32,44.4,2.6,2);
+    g.lineStyle(1,0x7a4a10,0.8); g.strokeEllipse(33,45.5,9,6.4);
+    // Cuello
+    const neck=gPts([[29,35],[37,35],[38,47],[28,47]]);
+    shadePoly(g,neck,0x8a9098,0xe8ebf0,4,-0.4,-0.9); gPoly(g,neck,null,OUT,1.3);
+    // Platillo
+    const sau=circlePts(33,22,17);
+    shadePoly(g,sau,0x969ca4,0xf6f8fb,7,-0.55,-0.85);
+    gPoly(g,sau,null,OUT,1.7);
+    g.lineStyle(1,0x70767e,0.55); g.arc(33,22,12.5,0,Math.PI*2); g.strokePath();
+    g.lineStyle(0.9,0x8a9098,0.5);  g.arc(33,22,7,0,Math.PI*2); g.strokePath();
+    // Marcas rojas y azules del casco
+    g.lineStyle(1.8,red,0.9); g.arc(33,22,14.6,Math.PI*1.12,Math.PI*1.88); g.strokePath();
+    g.lineStyle(1.4,blu,0.85); g.arc(33,22,9.6,Math.PI*0.12,Math.PI*0.88); g.strokePath();
+    g.lineStyle(1.1,red,0.8); g.arc(33,22,11,Math.PI*1.3,Math.PI*1.7); g.strokePath();
+    // Torre de mando
+    g.fillStyle(0x7d838b,1); g.fillCircle(33,22,4.2);
+    g.fillStyle(0xeef1f5,1); g.fillCircle(33,21.6,3.6);
+    g.fillStyle(0xffffff,0.95); g.fillCircle(32,20.6,1.5);
+    g.fillStyle(0x66e0ff,0.9); g.fillCircle(33,20.4,1.1);
+
+  } else if (key==='millennium') {
+    // Halcón Milenario YT-1300: disco, 2 mandíbulas, cabina desplazada, torreta
+    const d=0x5f5d56, l=0xd6d3c7;
+    // Mandíbulas delanteras
+    const mL=gPts([[28,27],[30,3],[40,3],[40,27]]);
+    const mR=gPts([[48,27],[48,3],[58,3],[56,27]]);
+    [mL,mR].forEach(p=>{ shadePoly(g,p,d,l,5,-0.5,-0.8); gPoly(g,p,null,OUT,1.4); });
+    g.fillStyle(0x12151a,1); g.fillRect(40,6,8,17);
+    g.fillStyle(0x2e3238,1); g.fillRect(41,8,6,3);
+    // Casco disco
+    const disc=circlePts(44,50,30);
+    shadePoly(g,disc,0x5a584f,0xd8d5c9,8,-0.6,-0.75);
+    gPoly(g,disc,null,OUT,1.9);
+    // Paneles concéntricos y radiales
+    g.lineStyle(1,0x4a4842,0.45); g.arc(44,50,22,0,Math.PI*2); g.strokePath();
+    g.lineStyle(0.9,0x4a4842,0.4); g.arc(44,50,13,0,Math.PI*2); g.strokePath();
+    g.lineStyle(0.9,0x514f48,0.4);
+    for(let k=0;k<10;k++){ const a=k*Math.PI/5;
+      g.lineBetween(44+Math.cos(a)*13,50+Math.sin(a)*13,44+Math.cos(a)*29,50+Math.sin(a)*29); }
+    // Marcas de desgaste
+    g.fillStyle(0x9c4a3a,0.5); g.fillRoundedRect(29,41,7,4,1);
+    g.fillStyle(0x6b7a52,0.45); g.fillRoundedRect(52,57,6,4,1);
+    g.fillStyle(0x8a877c,0.6); g.fillRoundedRect(36,62,9,3,1);
+    // Cabina desplazada a la derecha (con pasarela)
+    g.fillStyle(0x2f333a,1); g.fillRoundedRect(60,31,13,8,3.5);
+    g.fillStyle(0xb0ada2,1); g.fillRoundedRect(61,32,11,6,3);
+    shadePoly(g,circlePts(75,35,8),d,0xe2dfd3,5,-0.5,-0.8);
+    gPoly(g,circlePts(75,35,8),null,OUT,1.5);
+    g.fillStyle(0x0a0e13,1); g.fillEllipse(77,33.5,9.5,6.4);
+    g.fillStyle(0x86d4ff,0.85); g.fillEllipse(77,33.5,7.6,5);
+    g.lineStyle(1.1,0x14181e,1); g.lineBetween(75,31,75,36); g.lineBetween(78.5,31,78.5,36);
+    g.lineStyle(0.9,0x14181e,0.9); g.lineBetween(73.5,34,80.5,34);
+    // Torreta de cañones cuádruple (centro)
+    g.fillStyle(0x33383f,1); g.fillCircle(44,44,7.4);
+    shadePoly(g,circlePts(44,44,6),0x4d545d,0xb9c0c9,4,-0.4,-0.7);
+    gPoly(g,circlePts(44,44,6),null,OUT,1.2);
+    g.fillStyle(0x1b1f25,1); g.fillCircle(44,44,2.6);
+    cannonBarrel(g,42,30,10,2.4,0x9aa3ad);
+    cannonBarrel(g,46,30,10,2.4,0x9aa3ad);
+    // Plato sensor
+    g.fillStyle(0x22262c,1); g.fillEllipse(32,61,10,7.6);
+    g.fillStyle(0xbdb9ad,1); g.fillEllipse(32,60.6,8,6);
+    g.fillStyle(0x3b414a,0.9); g.fillEllipse(32,60.6,3.6,2.8);
+    g.lineStyle(1,0x2a2e34,0.9); g.strokeEllipse(32,60.6,8,6);
+    // Ventilación trasera del motor (arco brillante)
+    g.fillStyle(0x0c0f13,1); g.fillEllipse(44,74,44,13);
+    g.fillStyle(0x9fe8ff,0.8); g.fillEllipse(44,73.5,38,7.4);
+    g.fillStyle(0xffffff,0.95); g.fillEllipse(44,73,29,3.6);
+    // Remaches
+    g.fillStyle(0x3f3d38,0.65);
+    [[36,30],[52,30],[34,67],[55,66],[44,30],[44,66]].forEach(pt=>g.fillCircle(pt[0],pt[1],1.4));
   }
 }
 
@@ -1779,6 +3584,7 @@ const I18N = {
     soundOn:'SONIDO: SÍ', soundOff:'SONIDO: NO',
     level:'NIVEL', enemies:'Enemigos', bossLater:'luego JEFE', bossNow:'¡JEFE!',
     pot:'POT', bossWarning:'⚠ ¡JEFE A LA VISTA! ⚠', bossPrepare:'PREPÁRATE PARA EL COMBATE',
+    wave:'OLA', prepare:'PREPÁRATE', waveOf:'OLA', battle:'¡ALERTA!',
     levelComplete:'NIVEL COMPLETADO', points:'PUNTOS', accuracy:'PRECISIÓN',
     nextLevel:'SIGUIENTE NIVEL', lastLevel:'ÚLTIMO NIVEL', victoryBtn:'VER FINAL',
     autoAdvance:'Avance automático en {s}s',
@@ -1840,6 +3646,7 @@ const I18N = {
     soundOn:'SOUND: ON', soundOff:'SOUND: OFF',
     level:'LEVEL', enemies:'Enemies', bossLater:'boss later', bossNow:'BOSS!',
     pot:'PWR', bossWarning:'⚠ BOSS INCOMING! ⚠', bossPrepare:'PREPARE FOR BATTLE',
+    wave:'WAVE', prepare:'GET READY', waveOf:'WAVE', battle:'WARNING!',
     levelComplete:'LEVEL COMPLETE', points:'SCORE', accuracy:'ACCURACY',
     nextLevel:'NEXT LEVEL', lastLevel:'LAST LEVEL', victoryBtn:'SEE ENDING',
     autoAdvance:'Auto-advance in {s}s',
@@ -1909,7 +3716,7 @@ const COOP = {
   myId: null,
   worldSnapshot: null,
   remoteInputs: {},
-  maxPlayers: 6,
+  maxPlayers: 4,
   onNet: null,            // callback cliente -> datos (eventos del host)
   onClientJoin: null,     // callback host -> nuevo cliente
   onClientLeave: null,    // callback host -> cliente se va
@@ -1919,10 +3726,10 @@ const COOP = {
     const joinBtn=document.getElementById('join-btn');
     hostBtn.onclick=()=>this.hostGame();
     joinBtn.onclick=()=>this.showJoin();
-    // Selector de cantidad de jugadores (2 a 6)
+    // Selector de cantidad de jugadores (2 a 4)
     const grid=document.getElementById('maxp-grid');
     grid.innerHTML='';
-    [2,3,4,5,6].forEach(n=>{
+    [2,3,4].forEach(n=>{
       const b=document.createElement('button');
       b.className='diff-btn'+(n===this.maxPlayers?' active':'');
       b.textContent=n;
@@ -1996,7 +3803,7 @@ const COOP = {
     });
   },
   updatePlayerList(){
-    const max=this.maxPlayers||6;
+    const max=this.maxPlayers||4;
     document.getElementById('player-list').textContent=t('players')+': '+(this.hostConns.length+1)+'/'+max;
   },
   broadcastWorld(snap){
@@ -2037,7 +3844,7 @@ class PreloadScene extends Phaser.Scene {
     SHIPS.forEach(s=>{
       g=this.make.graphics({add:false});
       drawPlayerShip(g,s.key,s.color);
-      g.generateTexture('ship_'+s.key,44,62);
+      g.generateTexture('ship_'+s.key, s.w||44, s.h||62);
     });
     g=this.make.graphics({add:false}); drawAlly(g); g.generateTexture('ally',28,34);
 
@@ -2289,15 +4096,21 @@ class MenuScene extends Phaser.Scene {
       const grid=el('ship-select-grid'); grid.innerHTML='';
       SHIPS.forEach((s,i)=>{
         const b=document.createElement('button');
-        b.className='ship-btn'+(i===selectedShip?' active':'');
+        b.className='ship-btn'+(i===selectedShip?' active':'')+(s.legendary?' legendary':'');
         b.style.animationDelay=(i*70)+'ms';
         const canvas=document.createElement('canvas');
-        canvas.width=44; canvas.height=62;
-        try { canvas.getContext('2d').drawImage(this.textures.get('ship_'+s.key).getSourceImage(),0,0); } catch(e){}
+        canvas.width=46; canvas.height=58;
+        try {
+          const img=this.textures.get('ship_'+s.key).getSourceImage();
+          const ow=s.w||44, oh=s.h||62;
+          const sc=Math.min(46/ow, 58/oh);
+          canvas.getContext('2d').drawImage(img,0,0,ow,oh,(46-ow*sc)/2,(58-oh*sc)/2,ow*sc,oh*sc);
+        } catch(e){}
         b.appendChild(canvas);
         const label=document.createElement('div');
-        label.style.fontSize='9px'; label.textContent=s.name;
+        label.className='ship-name'; label.textContent=s.name;
         b.appendChild(label);
+        if(s.full){ const sub=document.createElement('div'); sub.className='ship-sub'; sub.textContent=s.full; b.appendChild(sub); }
         b.onclick=()=>{
           grid.querySelectorAll('.ship-btn').forEach(x=>x.classList.remove('active'));
           b.classList.add('active'); selectedShip=i;
@@ -2563,9 +4376,15 @@ class GameScene extends Phaser.Scene {
     AUDIO.preloadMusic(idx+1);
     AUDIO.preloadMusic(-8);
     this.levelKills=0;
-    this.totalEnemies=L.count;
+    // Olas por dificultad: fácil trae menos enemigos, LOCURA más
+    const emul=this.diff.enemyMul||1;
+    this.waveCounts=(L.waveCounts||[L.wave||7]).map(n=>Math.max(3,Math.round(n*emul)));
+    this.totalEnemies=this.waveCounts.reduce((a,b)=>a+b,0);
     this.spawnedEnemies=0;
-    this.waveSize=L.wave||3;
+    this.waveTotal=this.waveCounts.length;
+    this.waveIdx=0;
+    this.waveSize=this.waveCounts[0];
+    this.waveIntro=true;          // true mientras se muestra el cartel de la ola
     this.waveGap=L.waveGap||2500;
     this.maxAlive=L.maxAlive||5;
     this.maxEBullets=L.maxEBullets||12;
@@ -2576,6 +4395,7 @@ class GameScene extends Phaser.Scene {
     this.entering=true;
     this.exiting=false;
     this.paused=false;
+    if (this.waveBanner){ this.waveBanner.destroy(); this.waveBanner=null; }
     if (this.levelUI){
       if (this.levelUI.timer) this.levelUI.timer.remove();
       if (this.levelUI.tw) this.levelUI.tw.stop();
@@ -2693,6 +4513,8 @@ class GameScene extends Phaser.Scene {
     this.updateWeaponUI();
     this.updateProgressUI();
     if (godMode) this.applyGodMode();
+    // Cartel de la 1ª ola: hasta que termine no empieza a aparecer nadie
+    this.showWaveBanner(1, ()=>{ this.waveIntro=false; this.spawnTimer=0; });
   }
 
   applyGodMode(){
@@ -2719,7 +4541,8 @@ class GameScene extends Phaser.Scene {
   updateProgressUI(){
     if (!this.progressText) return;
     const rem=Math.max(0,this.totalEnemies-this.levelKills);
-    let tx=t('enemies')+' '+rem+'/'+this.totalEnemies;
+    const wt=this.waveTotal||1, wi=Math.min((this.waveIdx||0)+1, wt);
+    let tx=t('wave')+' '+wi+'/'+wt+' · '+t('enemies')+' '+rem+'/'+this.totalEnemies;
     if (this.levelConfig.boss) tx+=' · '+(this.bossSpawned?t('bossNow'):t('bossLater'));
     this.progressText.setText(tx);
   }
@@ -2850,7 +4673,7 @@ class GameScene extends Phaser.Scene {
       key=this.ensureBossTexture(idx);
       rad=Math.max(20,Math.min(sp.w,sp.h)*0.8);
       fire=sp.final?260:380-Math.min(240,idx*3);
-      hp=(sp.final?900:220)+idx*40;
+      hp=sp.famous?((sp.final?4200:260)+idx*48):((sp.final?900:220)+idx*40);
       speed=30-Math.min(14,idx*0.25);
       score=hp*12;
     } else {
@@ -2884,10 +4707,11 @@ class GameScene extends Phaser.Scene {
     // Overlays neón dinámicos: aura pulsante, mirada que sigue al jugador y satélites orbitales
     if (dyn && this.bossFx){
       const spx=BOSS_SPECS[idx];
-      const gl=this.add.image(e.x,e.y,'gloworb').setDepth(4.5).setBlendMode(Phaser.BlendModes.ADD).setTint(spx.glow).setAlpha(0.20);
+      const gl=this.add.image(e.x,e.y,'gloworb').setDepth(4.5).setBlendMode(Phaser.BlendModes.ADD).setTint(spx.glow).setAlpha(spx.famous?0.14:0.20);
       gl.setData('sx',Math.max(0.75,spx.w/78)); gl.setData('sy',Math.max(0.75,spx.h/78));
       gl.setScale(gl.getData('sx'),gl.getData('sy'));
       e.glowOrb=gl; this.bossFx.add(gl);
+      if (!spx.famous){ // naves reales: se ven tal cual, sin ojos ni satélites de neón
       const nEyes=spx.final?3:spx.eyes, gaze=[];
       for(let k=0;k<nEyes;k++){
         const off=(k-(nEyes-1)/2)*spx.w*0.12;
@@ -2901,6 +4725,7 @@ class GameScene extends Phaser.Scene {
         sats.push({s, a:k*Math.PI*2/nSat, r:rr}); this.bossFx.add(s);
       }
       e.sats=sats;
+      }
     }
     this.bossSpawned=true;
     AUDIO.startMusic(-8); // música de jefe
@@ -2912,15 +4737,57 @@ class GameScene extends Phaser.Scene {
   showBossWarning(onDone){
     const c=this.add.container(W/2,H/2).setDepth(80);
     const bar=this.add.rectangle(0,0,W,80,0xff0000,0.18);
-    const t1=this.add.text(0,-18,'⚠ ¡JEFE A LA VISTA! ⚠',{fontSize:'20px',fontFamily:'monospace',color:'#ff3333',stroke:'#000',strokeThickness:3}).setOrigin(0.5);
+    const t1=this.add.text(0,-18,t('bossWarning'),{fontSize:'20px',fontFamily:'monospace',color:'#ff3333',stroke:'#000',strokeThickness:3}).setOrigin(0.5);
     const nm=this.levelConfig.bossName||'';
-    const t2=this.add.text(0,10,(nm?nm.toUpperCase():'PREPÁRATE PARA EL COMBATE'),{fontSize:nm?'13px':'11px',fontFamily:'monospace',color:nm?'#ffdd66':'#ffcccc'}).setOrigin(0.5);
-    const t3=this.add.text(0,26,'PREPÁRATE PARA EL COMBATE',{fontSize:'10px',fontFamily:'monospace',color:'#ffcccc'}).setOrigin(0.5);
-    c.add([bar,t1,t2,t3]);
+    const sb=this.levelConfig.bossSub||'';
+    const t2=this.add.text(0,8,(nm?nm.toUpperCase():t('bossPrepare')),{fontSize:nm?'13px':'11px',fontFamily:'monospace',color:nm?'#ffdd66':'#ffcccc'}).setOrigin(0.5);
+    const t2b=sb?this.add.text(0,25,sb,{fontSize:'9px',fontFamily:'monospace',color:'#c9a76b'}):null;
+    const t3=this.add.text(0,t2b?40:26,t('bossPrepare'),{fontSize:'10px',fontFamily:'monospace',color:'#ffcccc'}).setOrigin(0.5);
+    c.add(t2b?[bar,t1,t2,t2b,t3]:[bar,t1,t2,t3]);
     AUDIO.sfx('warning');
     vib([80,60,80]);
     this.tweens.add({targets:c, alpha:0.25, duration:180, yoyo:true, repeat:6,
       onComplete:()=>{ c.destroy(); if (onDone) onDone(); }});
+  }
+
+  // ===== Cartel de ola al estilo arcade: "OLA n / PREPÁRATE" =====
+  showWaveBanner(n, onDone){
+    if (this.waveBanner){ this.waveBanner.destroy(); this.waveBanner=null; }
+    const bw=Math.min(W-24, 440);
+    const c=this.add.container(W/2, Math.round(H*0.40)).setDepth(82);
+    const bar=this.add.rectangle(0,0,bw,112,0x04121f,0.66);
+    const top=this.add.rectangle(0,-56,bw,2,0x3ee0ff,0.95);
+    const bot=this.add.rectangle(0,56,bw,2,0x3ee0ff,0.95);
+    const sub=this.add.text(0,-44,t('wave')+' 1/'+(this.waveTotal||6),{fontSize:'11px',fontFamily:'monospace',color:'#7fd8ff',stroke:'#04121f',strokeThickness:3}).setOrigin(0.5);
+    const t1=this.add.text(0,-6,t('wave')+' '+n,{fontSize:'46px',fontFamily:'monospace',color:'#ffffff',stroke:'#04121f',strokeThickness:9,strokeLinejoin:'round'}).setOrigin(0.5);
+    const t2=this.add.text(0,34,t('prepare'),{fontSize:'16px',fontFamily:'monospace',color:'#8ff3ff',stroke:'#04121f',strokeThickness:4}).setOrigin(0.5);
+    c.add([bar,top,bot,sub,t1,t2]);
+    this.waveBanner=c;
+    AUDIO.sfx('levelup');
+    try{ vib([45]); }catch(e){}
+    c.setScale(0.35).setAlpha(0);
+    this.tweens.add({targets:c, scale:1, alpha:1, duration:340, ease:'Back.Out'});
+    this.tweens.add({targets:[top,bot], alpha:0.25, duration:260, yoyo:true, repeat:4});
+    // Se mantiene ~2,2 s y luego sale con fundido
+    this.time.delayedCall(2200, ()=>{
+      if (!c || !c.active){ if (onDone) onDone(); return; }
+      this.tweens.add({targets:c, alpha:0, scale:1.12, duration:320, ease:'Cubic.In',
+        onComplete:()=>{ c.destroy(); if (this.waveBanner===c) this.waveBanner=null; if (onDone) onDone(); }});
+    });
+  }
+
+  // Ola terminada (limpia): lanza el cartel de la siguiente o, si ya iba en la 6ª, el jefe
+  nextWave(){
+    this.spawnedInWave=0;
+    this.spawnTimer=0;
+    this.waveIdx=(this.waveIdx||0)+1;
+    if (this.waveIdx>=this.waveTotal){
+      this.waveIntro=false;   // sin cartel: checkLevelProgress lanza el aviso del jefe
+      return;
+    }
+    this.waveSize=this.waveCounts[this.waveIdx];
+    this.waveIntro=true;
+    this.showWaveBanner(this.waveIdx+1, ()=>{ this.waveIntro=false; this.spawnTimer=this.levelConfig.spawn; });
   }
 
   updateBossBar(){
@@ -3312,22 +5179,28 @@ class GameScene extends Phaser.Scene {
       if (o.x>W+100) o.x=-100;
     });
 
-    // Spawn por oleadas con huecos para respirar
+    // ===== OLEADAS: cartel -> spawn -> limpiar pantalla -> cartel de la siguiente =====
     if (!this.bossSpawned && this.spawnedEnemies<this.totalEnemies){
-      this.spawnTimer-=delta;
-      if (this.spawnTimer<=0){
-        const alive=this.enemies.countActive(true);
-        if (alive<this.maxAlive){
-          this.spawnEnemy();
-          this.spawnedInWave=(this.spawnedInWave||0)+1;
-          if (this.spawnedInWave>=this.waveSize || this.spawnedEnemies>=this.totalEnemies){
-            this.spawnTimer=this.waveGap;
-            this.spawnedInWave=0;
+      const alive=this.enemies?this.enemies.countActive(true):0;
+      if (this.waveIntro){
+        // Cartel "OLA n / PREPÁRATE" en pantalla: nadie aparece todavía
+      } else if (this.spawnedInWave>=this.waveSize){
+        // Ola desplegada por completo: al quedar limpia sale la siguiente
+        if (alive<=0) this.nextWave();
+      } else {
+        this.spawnTimer-=delta;
+        if (this.spawnTimer<=0){
+          if (alive<this.maxAlive){
+            this.spawnEnemy();
+            this.spawnedInWave=(this.spawnedInWave||0)+1;
+            if (this.spawnedInWave>=this.waveSize || this.spawnedEnemies>=this.totalEnemies){
+              this.spawnTimer=0;   // ola completa: solo falta que se limpie
+            } else {
+              this.spawnTimer=this.levelConfig.spawn;
+            }
           } else {
-            this.spawnTimer=this.levelConfig.spawn;
+            this.spawnTimer=280;
           }
-        } else {
-          this.spawnTimer=280;
         }
       }
     }

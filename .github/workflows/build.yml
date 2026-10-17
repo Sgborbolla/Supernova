@@ -126,3 +126,14 @@ jobs:
           path: |
             Supernova.apk
             Supernova.aab
+
+      - name: Publicar Release con APK y AAB
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Supernova build ${{ github.run_number }}
+          files: |
+            Supernova.apk
+            Supernova.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

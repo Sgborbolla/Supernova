@@ -1,0 +1,24 @@
+TAREA PENDIENTE — Supernova
+============================
+
+Hacer un APK compatible con Android 4 (4.0 ICS / API 14) en adelante.
+
+Estado actual:
+- El APK/AAB generado con Capacitor 6 exige Android 5.1 (API 22) como mínimo.
+- Por eso NO instala en Android 4.x.
+
+Qué habría que hacer:
+- Bajar el minSdkVersion a 14 (Android 4.0) o 19 (Android 4.4).
+- Opciones:
+  1) Capacitor 3 (minSdk 22) → no sirve; seguiría sin soportar Android 4.
+  2) Cordova con minSdk bajo (14/16) → permite Android 4.x; el juego usa
+     WebView + Phaser, que funciona en WebView de Android 4.4, pero en
+     Android 4.0-4.3 el WebView es antiguo y puede fallar (sin WebGL).
+  3) Empaquetar con un WebView propio (proyecto Android nativo) fijando
+     minSdkVersion 14 y probando en dispositivos/emulador Android 4.
+- Verificar: rendimiento del WebView antiguo, audio (WebAudio) y que
+  Phaser 3 arranque (en Android 4.0-4.3 sin WebGL usaría Canvas).
+- Revisar el tamaño de la APK (los 73 MB de música pueden ser un problema
+  en equipos Android 4 con poca memoria interna).
+
+Fecha de la nota: 2026-10-17

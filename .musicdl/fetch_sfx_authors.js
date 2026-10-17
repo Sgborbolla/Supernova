@@ -9,15 +9,10 @@ const srcs=[
  ['shoot','laser_shooting_sfx.mp3'],['laser','sfx_laser_1.mp3'],['plasma','snd_fillenergy.wav'],
  ['lightning','groundhit.wav'],['missile','burst fire.mp3'],['explosion','explosion_preview.mp3'],
  ['powerup','SFX_Powerup_21.mp3'],['hit','playerhit.mp3'],['bomb','8bit_bomb_explosion.wav'],
- ['levelup','level_up.wav'],['warning','alarm.ogg'],['click','MP3_Button Clicks & Beeps_04.mp3'],
- // enemigos 16
+ ['levelup','level_up.wav'],['warning','alarm.ogg'],['click','MP3_Button Clicks & Beeps_04.mp3'], // enemigos 10
  ['exp_drone','explosion02.ogg'],['exp_swarm','Explosion6.wav'],['exp_hunter','explosion03.ogg'],
  ['exp_elite','explosions4.ogg'],['exp_sniper','explosion04.ogg'],['exp_bomber','explosion2.ogg'],
- ['exp_kamikaze','boom2.mp3'],['exp_shielder','explosion01.ogg'],['exp_spinner','boom1.mp3'],
- ['exp_mothership','boom9.mp3'],['exp_boss','boom6.mp3'],['exp_destroyer','explosion5.ogg'],
- ['exp_hive','explosion3.ogg'],['exp_dreadnought','SFX_Explosion_06.mp3'],['exp_titan','SFX_Explosion_09.mp3'],
- ['exp_overlord','deathboom.wav'],
- // jugadores 4
+ ['exp_kamikaze','boom2.mp3'],['exp_shielder','explosion01.ogg'],['exp_spinner','boom1.mp3'],['exp_boss','boom6.mp3'], // jugadores 4
  ['pdeath_viper','boom4.mp3'],['pdeath_falcon','atari_boom.mp3'],['pdeath_phantom','mechanical_explosion.wav'],['pdeath_titan','dull_explosion.wav']
 ];
 

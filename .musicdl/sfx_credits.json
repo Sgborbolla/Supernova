@@ -1,0 +1,226 @@
+[
+ {
+  "name": "shoot",
+  "title": "Laser_shooting_sx",
+  "license": "CC0",
+  "slug": "lasershootingsx",
+  "author": "teckpow"
+ },
+ {
+  "name": "laser",
+  "title": "Laser Sound Effects",
+  "license": "CC0",
+  "slug": "laser-sound-effects",
+  "author": "EZduzziteh"
+ },
+ {
+  "name": "plasma",
+  "title": "Various Sound Effects",
+  "license": "CC0",
+  "slug": "various-sound-effects-0",
+  "author": "Spring Spring"
+ },
+ {
+  "name": "lightning",
+  "title": "Electricity Game Sound Pack",
+  "license": "CC0",
+  "slug": "electricity-game-sound-pack",
+  "author": "faxcorp"
+ },
+ {
+  "name": "missile",
+  "title": "Laser weapon burst fire",
+  "license": "CC0",
+  "slug": "laser-weapon-burst-fire",
+  "author": "celestialghost8"
+ },
+ {
+  "name": "explosion",
+  "title": "Explosion",
+  "license": "CC0",
+  "slug": "explosion-0",
+  "author": "TinyWorlds"
+ },
+ {
+  "name": "powerup",
+  "title": "8-BIT Powerup #1",
+  "license": "CC-BY 3.0",
+  "slug": "8-bit-powerup-1",
+  "author": "jalastram"
+ },
+ {
+  "name": "hit",
+  "title": "Player Hit (damage)",
+  "license": "CC0",
+  "slug": "player-hit-damage",
+  "author": "GreyFrogGames"
+ },
+ {
+  "name": "bomb",
+  "title": "bomb_explosion_8bit",
+  "license": "CC0",
+  "slug": "bombexplosion8bit",
+  "author": "Luke.RUSTLTD"
+ },
+ {
+  "name": "levelup",
+  "title": "Chiptune SFX Pack",
+  "license": "CC0",
+  "slug": "chiptune-sfx-pack",
+  "author": "FrogPog"
+ },
+ {
+  "name": "warning",
+  "title": "Short alarm",
+  "license": "CC0",
+  "slug": "short-alarm",
+  "author": "yd"
+ },
+ {
+  "name": "click",
+  "title": "Button Clicks & Beeps - [99 Sounds]",
+  "license": "CC-BY 3.0",
+  "slug": "button-clicks-beeps-99-sounds",
+  "author": "jalastram"
+ },
+ {
+  "name": "exp_drone",
+  "title": "Soundpack 03",
+  "license": "CC0",
+  "slug": "soundpack-03",
+  "author": "crazyduckgames"
+ },
+ {
+  "name": "exp_swarm",
+  "title": "8-bit/NES explosion sound effecs",
+  "license": "CC-BY 3.0",
+  "slug": "8-bitnes-explosion-sound-effecs",
+  "author": "TeamAlpha"
+ },
+ {
+  "name": "exp_hunter",
+  "title": "Soundpack 03",
+  "license": "CC0",
+  "slug": "soundpack-03",
+  "author": "crazyduckgames"
+ },
+ {
+  "name": "exp_elite",
+  "title": "Explosions",
+  "license": "CC0",
+  "slug": "explosions-4",
+  "author": "EZduzziteh"
+ },
+ {
+  "name": "exp_sniper",
+  "title": "Soundpack 03",
+  "license": "CC0",
+  "slug": "soundpack-03",
+  "author": "crazyduckgames"
+ },
+ {
+  "name": "exp_bomber",
+  "title": "Explosions",
+  "license": "CC0",
+  "slug": "explosions-4",
+  "author": "EZduzziteh"
+ },
+ {
+  "name": "exp_kamikaze",
+  "title": "Boom Pack 1",
+  "license": "CC-BY 3.0",
+  "slug": "boom-pack-1",
+  "author": "dklon"
+ },
+ {
+  "name": "exp_shielder",
+  "title": "Soundpack 03",
+  "license": "CC0",
+  "slug": "soundpack-03",
+  "author": "crazyduckgames"
+ },
+ {
+  "name": "exp_spinner",
+  "title": "Boom Pack 1",
+  "license": "CC-BY 3.0",
+  "slug": "boom-pack-1",
+  "author": "dklon"
+ },
+ {
+  "name": "exp_mothership",
+  "title": "Boom Pack 1",
+  "license": "CC-BY 3.0",
+  "slug": "boom-pack-1",
+  "author": "dklon"
+ },
+ {
+  "name": "exp_boss",
+  "title": "Boom Pack 1",
+  "license": "CC-BY 3.0",
+  "slug": "boom-pack-1",
+  "author": "dklon"
+ },
+ {
+  "name": "exp_destroyer",
+  "title": "Space Sound Effects",
+  "license": "CC0",
+  "slug": "space-sound-effects",
+  "author": "messersm"
+ },
+ {
+  "name": "exp_hive",
+  "title": "Explosions",
+  "license": "CC0",
+  "slug": "explosions-4",
+  "author": "EZduzziteh"
+ },
+ {
+  "name": "exp_dreadnought",
+  "title": "8-BIT Explosions #1",
+  "license": "CC-BY 3.0",
+  "slug": "8-bit-explosions-1",
+  "author": "jalastram"
+ },
+ {
+  "name": "exp_titan",
+  "title": "8-BIT Explosions #1",
+  "license": "CC-BY 3.0",
+  "slug": "8-bit-explosions-1",
+  "author": "jalastram"
+ },
+ {
+  "name": "exp_overlord",
+  "title": "Electricity Game Sound Pack",
+  "license": "CC0",
+  "slug": "electricity-game-sound-pack",
+  "author": "faxcorp"
+ },
+ {
+  "name": "pdeath_viper",
+  "title": "Boom Pack 1",
+  "license": "CC-BY 3.0",
+  "slug": "boom-pack-1",
+  "author": "dklon"
+ },
+ {
+  "name": "pdeath_falcon",
+  "title": "Atari Booms",
+  "license": "CC-BY 3.0",
+  "slug": "atari-booms",
+  "author": "dklon"
+ },
+ {
+  "name": "pdeath_phantom",
+  "title": "Mechanical Explosion",
+  "license": "CC0",
+  "slug": "mechanical-explosion",
+  "author": "Spring Spring"
+ },
+ {
+  "name": "pdeath_titan",
+  "title": "Various Sound Effects",
+  "license": "CC0",
+  "slug": "various-sound-effects-0",
+  "author": "Spring Spring"
+ }
+]

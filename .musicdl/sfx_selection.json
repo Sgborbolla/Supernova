@@ -1,0 +1,86 @@
+{
+ "shoot": {
+  "url": "https://opengameart.org/sites/default/files/laser_shooting_sfx.mp3",
+  "src": "laser_shooting_sfx.mp3",
+  "size": 5405,
+  "title": "Laser_shooting_sx",
+  "license": "CC0"
+ },
+ "laser": {
+  "url": "https://opengameart.org/sites/default/files/sfx_laser_1.mp3",
+  "src": "sfx_laser_1.mp3",
+  "size": 2304,
+  "title": "Laser Sound Effects",
+  "license": "CC0"
+ },
+ "plasma": {
+  "url": "https://opengameart.org/sites/default/files/snd_fillenergy.wav",
+  "src": "snd_fillenergy.wav",
+  "size": 15282,
+  "title": "Various Sound Effects",
+  "license": "CC0"
+ },
+ "lightning": {
+  "url": "https://opengameart.org/sites/default/files/groundhit.wav",
+  "src": "groundhit.wav",
+  "size": 50304,
+  "title": "Electricity Game Sound Pack",
+  "license": "CC0"
+ },
+ "missile": {
+  "url": "https://opengameart.org/sites/default/files/burst%20fire.mp3",
+  "src": "burst fire.mp3",
+  "size": 14176,
+  "title": "Laser weapon burst fire",
+  "license": "CC0"
+ },
+ "explosion": {
+  "url": "https://opengameart.org/sites/default/files/explosion_preview.mp3",
+  "src": "explosion_preview.mp3",
+  "size": 10063,
+  "title": "Explosion",
+  "license": "CC0"
+ },
+ "powerup": {
+  "url": "https://opengameart.org/sites/default/files/SFX_Powerup_21.mp3",
+  "src": "SFX_Powerup_21.mp3",
+  "size": 10495,
+  "title": "8-BIT Powerup #1",
+  "license": "CC-BY 3.0"
+ },
+ "hit": {
+  "url": "https://opengameart.org/sites/default/files/playerhit.mp3",
+  "src": "playerhit.mp3",
+  "size": 6332,
+  "title": "Player Hit (damage)",
+  "license": "CC0"
+ },
+ "bomb": {
+  "url": "https://opengameart.org/sites/default/files/8bit_bomb_explosion.wav",
+  "src": "8bit_bomb_explosion.wav",
+  "size": 51558,
+  "title": "bomb_explosion_8bit",
+  "license": "CC0"
+ },
+ "levelup": {
+  "url": "https://opengameart.org/sites/default/files/level_up.wav",
+  "src": "level_up.wav",
+  "size": 168016,
+  "title": "Chiptune SFX Pack",
+  "license": "CC0"
+ },
+ "warning": {
+  "url": "https://opengameart.org/sites/default/files/alarm.ogg",
+  "src": "alarm.ogg",
+  "size": 27529,
+  "title": "Short alarm",
+  "license": "CC0"
+ },
+ "click": {
+  "url": "https://opengameart.org/sites/default/files/MP3_Button%20Clicks%20%26%20Beeps_04.mp3",
+  "src": "MP3_Button Clicks & Beeps_04.mp3",
+  "size": 3229,
+  "title": "Button Clicks &amp; Beeps - [99 Sounds]",
+  "license": "CC-BY 3.0"
+ }
+}

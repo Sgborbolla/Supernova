@@ -1,0 +1,578 @@
+[
+ {
+  "idx": 0,
+  "file": "music/0.ogg",
+  "src": "Caves.ogg",
+  "title": "T & T Free Cyberpunk Pack",
+  "author": "tricksntraps",
+  "license": "CC0",
+  "slug": "t-t-free-cyberpunk-pack"
+ },
+ {
+  "idx": 1,
+  "file": "music/1.ogg",
+  "src": "new_factory_129bpm.ogg",
+  "title": "T & T Free Cyberpunk Pack 2",
+  "author": "tricksntraps",
+  "license": "CC0",
+  "slug": "t-t-free-cyberpunk-pack-2"
+ },
+ {
+  "idx": 2,
+  "file": "music/2.mp3",
+  "src": "cyberpunkmenu.ogg",
+  "title": "Cyberpunk Menu Music",
+  "author": "ZaninDevelopers",
+  "license": "CC0",
+  "slug": "cyberpunk-menu-music"
+ },
+ {
+  "idx": 3,
+  "file": "music/3.ogg",
+  "src": "claimed_by_the_void_mix.ogg",
+  "title": "Claimed by the void, new factory, AI fight and simulation unknown (vitalezzz vs Tricksntraps)",
+  "author": "glitchart",
+  "license": "CC0",
+  "slug": "claimed-by-the-void-new-factory-ai-fight-and-simulation-unknown-vitalezzz-vs-tricksntraps"
+ },
+ {
+  "idx": 4,
+  "file": "music/4.mp3",
+  "src": "corrupt_data_stream.ogg",
+  "title": "Corrupt Data Stream",
+  "author": "Tsorthan Grove",
+  "license": "CC0",
+  "slug": "corrupt-data-stream"
+ },
+ {
+  "idx": 5,
+  "file": "music/5.ogg",
+  "src": "ruskerdax_-_cybershaman_preview.ogg",
+  "title": "Cybershaman",
+  "author": "Ruskerdax",
+  "license": "CC0",
+  "slug": "cybershaman"
+ },
+ {
+  "idx": 6,
+  "file": "music/6.ogg",
+  "src": "synthwavehouse.ogg",
+  "title": "Synthwave House Loop",
+  "author": "Fupi",
+  "license": "CC0",
+  "slug": "synthwave-house-loop"
+ },
+ {
+  "idx": 7,
+  "file": "music/7.ogg",
+  "src": "auferstanden_aus_ruinen.ogg",
+  "title": "Synthwave - Auferstanden aus Ruinen [2:45]",
+  "author": "Dizzy Crow",
+  "license": "CC0",
+  "slug": "synthwave-auferstanden-aus-ruinen-245"
+ },
+ {
+  "idx": 8,
+  "file": "music/8.ogg",
+  "src": "slampe.ogg",
+  "title": "Slampe - Synthwave House",
+  "author": "Fupi",
+  "license": "CC0",
+  "slug": "slampe-synthwave-house"
+ },
+ {
+  "idx": 9,
+  "file": "music/9.ogg",
+  "src": "space_adventure_bpm140.ogg",
+  "title": "Space Adventure",
+  "author": "MintoDog",
+  "license": "CC0",
+  "slug": "space-adventure"
+ },
+ {
+  "idx": 10,
+  "file": "music/10.ogg",
+  "src": "boss_fight_2.ogg",
+  "title": "Boss Fight 2",
+  "author": "ansimuz",
+  "license": "CC0",
+  "slug": "boss-fight-2"
+ },
+ {
+  "idx": 13,
+  "file": "music/13.ogg",
+  "src": "techno.ogg",
+  "title": "Piece of techno music",
+  "author": "plemuzic",
+  "license": "CC0",
+  "slug": "piece-of-techno-music"
+ },
+ {
+  "idx": 15,
+  "file": "music/15.ogg",
+  "src": "slow_techno_track_2_prev.ogg",
+  "title": "Slow fun techno track 2",
+  "author": "annandistance",
+  "license": "CC0",
+  "slug": "slow-fun-techno-track-2"
+ },
+ {
+  "idx": 16,
+  "file": "music/16.ogg",
+  "src": "techno_dawn_prog_v4.ogg",
+  "title": "Dawn of Hope(Techno)",
+  "author": "Centurion_of_war",
+  "license": "CC0",
+  "slug": "dawn-of-hopetechno"
+ },
+ {
+  "idx": 17,
+  "file": "music/17.ogg",
+  "src": "fast_techno_action_loop.ogg",
+  "title": "Fast fun action techno loop 1",
+  "author": "annandistance",
+  "license": "CC0",
+  "slug": "fast-fun-action-techno-loop-1"
+ },
+ {
+  "idx": 19,
+  "file": "music/19.ogg",
+  "src": "ObservingTheStar.ogg",
+  "title": "Another space background track",
+  "author": "yd",
+  "license": "CC0",
+  "slug": "another-space-background-track"
+ },
+ {
+  "idx": 21,
+  "file": "music/21.ogg",
+  "src": "crazy-space.ogg",
+  "title": "crazy space",
+  "author": "rubberduck",
+  "license": "CC0",
+  "slug": "crazy-space"
+ },
+ {
+  "idx": 22,
+  "file": "music/22.ogg",
+  "src": "Out in Space.ogg",
+  "title": "Out in Space",
+  "author": "Agecaf",
+  "license": "CC0",
+  "slug": "out-in-space-0"
+ },
+ {
+  "idx": 24,
+  "file": "music/24.ogg",
+  "src": "Spacearray.ogg",
+  "title": "Deep Space Array",
+  "author": "Tozan",
+  "license": "CC0",
+  "slug": "deep-space-array"
+ },
+ {
+  "idx": 25,
+  "file": "music/25.ogg",
+  "src": "Vape In Space.ogg",
+  "title": "Vape In Space",
+  "author": "zq",
+  "license": "CC0",
+  "slug": "vape-in-space"
+ },
+ {
+  "idx": 28,
+  "file": "music/28.ogg",
+  "src": "eeriechoir.ogg",
+  "title": "Retro Tunes",
+  "author": "TheFrenchDodo",
+  "license": "CC0",
+  "slug": "retro-tunes"
+ },
+ {
+  "idx": 30,
+  "file": "music/30.ogg",
+  "src": "tensebassboostdrums.ogg",
+  "title": "Tense Bass Boost Drum Loop 140 BPM",
+  "author": "Fupi",
+  "license": "CC0",
+  "slug": "tense-bass-boost-drum-loop-140-bpm"
+ },
+ {
+  "idx": 31,
+  "file": "music/31.ogg",
+  "src": "01_lift_off_b.ogg",
+  "title": "Outer Space Music Pack",
+  "author": "leohpaz",
+  "license": "CC-BY 4.0 / CC-BY 3.0",
+  "slug": "outer-space-music-pack"
+ },
+ {
+  "idx": 32,
+  "file": "music/32.mp3",
+  "src": "Komiku - Poupi's incredible adventures ! - 11 WIN_1.mp3",
+  "title": "Poupi's incredible adventures (full album)",
+  "author": "Loyalty Freak Music",
+  "license": "CC0",
+  "slug": "poupis-incredible-adventures-full-album"
+ },
+ {
+  "idx": 33,
+  "file": "music/33.mp3",
+  "src": "POL-battle-march-short_0.mp3",
+  "title": "Battle March - Epic Orchestral Music Loop",
+  "author": "PlayOnLoop",
+  "license": "CC-BY 3.0",
+  "slug": "battle-march-epic-orchestral-music-loop"
+ },
+ {
+  "idx": 34,
+  "file": "music/34.ogg",
+  "src": "Arcade fast flow1_Intro.ogg",
+  "title": "Arcade fast flow Sound",
+  "author": "Trinnox",
+  "license": "CC-BY 3.0",
+  "slug": "arcade-fast-flow-sound"
+ },
+ {
+  "idx": 35,
+  "file": "music/35.mp3",
+  "src": "Ruggles.mp3",
+  "title": "Stumphead Retro Pack 1",
+  "author": "StumpheadJosh",
+  "license": "CC-BY 4.0",
+  "slug": "stumphead-retro-pack-1"
+ },
+ {
+  "idx": 36,
+  "file": "music/36.ogg",
+  "src": "J60.Loop_.ogg",
+  "title": "Soundscape - Synthwave Horror J60 - Loop",
+  "author": "Ellary",
+  "license": "CC-BY 4.0",
+  "slug": "soundscape-synthwave-horror-j60-loop"
+ },
+ {
+  "idx": 37,
+  "file": "music/37.mp3",
+  "src": "POL-hesitation-short.mp3",
+  "title": "Hesitation - Synth Electronic Loop",
+  "author": "PlayOnLoop",
+  "license": "CC-BY 3.0",
+  "slug": "hesitation-synth-electronic-loop"
+ },
+ {
+  "idx": 38,
+  "file": "music/38.mp3",
+  "src": "POL-holocaust-short.mp3",
+  "title": "Holocaust - Electro Rock Loop",
+  "author": "PlayOnLoop",
+  "license": "CC-BY 3.0",
+  "slug": "holocaust-electro-rock-loop"
+ },
+ {
+  "idx": 39,
+  "file": "music/39.ogg",
+  "src": "fight_looped.ogg",
+  "title": "Fast fight / battle music (looped)",
+  "author": "XCVG",
+  "license": "CC0",
+  "slug": "fast-fight-battle-music-looped"
+ },
+ {
+  "idx": 40,
+  "file": "music/40.mp3",
+  "src": "Sharon.mp3",
+  "title": "Stumphead Retro Pack 1",
+  "author": "StumpheadJosh",
+  "license": "CC-BY 4.0",
+  "slug": "stumphead-retro-pack-1"
+ },
+ {
+  "idx": 41,
+  "file": "music/41.mp3",
+  "src": "victory_4.mp3",
+  "title": "Dark Sci-Fi Audio Pack",
+  "author": "SRG774",
+  "license": "CC0",
+  "slug": "dark-sci-fi-audio-pack"
+ },
+ {
+  "idx": 42,
+  "file": "music/42.ogg",
+  "src": "preview_23.ogg",
+  "title": "Heckin' Crows",
+  "author": "congusbongus",
+  "license": "CC0",
+  "slug": "heckin-crows"
+ },
+ {
+  "idx": 43,
+  "file": "music/43.mp3",
+  "src": "introwavybgm.mp3",
+  "title": "Retro Space BGM",
+  "author": "Monster Logix Studio",
+  "license": "CC0",
+  "slug": "retro-space-bgm"
+ },
+ {
+  "idx": 44,
+  "file": "music/44.mp3",
+  "src": "techno-preview.mp3",
+  "title": "Techno",
+  "author": "digitl",
+  "license": "CC-BY 3.0",
+  "slug": "techno"
+ },
+ {
+  "idx": 45,
+  "file": "music/45.mp3",
+  "src": "Hack.mp3",
+  "title": "Stumphead Retro Pack 1",
+  "author": "StumpheadJosh",
+  "license": "CC-BY 4.0",
+  "slug": "stumphead-retro-pack-1"
+ },
+ {
+  "idx": 46,
+  "file": "music/46.mp3",
+  "src": "Synth Bass 16 bars.mp3",
+  "title": "Driving Bass Loop",
+  "author": "Macro",
+  "license": "CC-BY 3.0",
+  "slug": "driving-bass-loop"
+ },
+ {
+  "idx": 47,
+  "file": "music/47.mp3",
+  "src": "title screen.mp3",
+  "title": "5 Chiptunes (Action)",
+  "author": "SubspaceAudio",
+  "license": "CC0",
+  "slug": "5-chiptunes-action"
+ },
+ {
+  "idx": 48,
+  "file": "music/48.mp3",
+  "src": "Important If True.mp3",
+  "title": "Stumphead Retro Pack 1",
+  "author": "StumpheadJosh",
+  "license": "CC-BY 4.0",
+  "slug": "stumphead-retro-pack-1"
+ },
+ {
+  "idx": 49,
+  "file": "music/49.mp3",
+  "src": "Oldschool Intro.mp3",
+  "title": "Oldschool Action Theme",
+  "author": "Joth",
+  "license": "CC0",
+  "slug": "oldschool-action-theme"
+ },
+ {
+  "idx": 50,
+  "file": "music/50.mp3",
+  "src": "bgm_action_5.mp3",
+  "title": "8-bit Music Pack (Loopable)",
+  "author": "CodeManu",
+  "license": "CC-BY 3.0",
+  "slug": "8-bit-music-pack-loopable"
+ },
+ {
+  "idx": 51,
+  "file": "music/51.ogg",
+  "src": "01_lift_off_ab_transition.ogg",
+  "title": "Outer Space Music Pack",
+  "author": "leohpaz",
+  "license": "CC-BY 4.0 / CC-BY 3.0",
+  "slug": "outer-space-music-pack"
+ },
+ {
+  "idx": 52,
+  "file": "music/52.mp3",
+  "src": "8Bit Title Screen.mp3",
+  "title": "8Bit Title Screen",
+  "author": "Joth",
+  "license": "CC0",
+  "slug": "8bit-title-screen"
+ },
+ {
+  "idx": 53,
+  "file": "music/53.mp3",
+  "src": "ancientbgm.mp3",
+  "title": "Retro Space BGM",
+  "author": "Monster Logix Studio",
+  "license": "CC0",
+  "slug": "retro-space-bgm"
+ },
+ {
+  "idx": 54,
+  "file": "music/54.mp3",
+  "src": "mp3gyfast_1.mp3",
+  "title": "Graveyard retro game music",
+  "author": "sn2d",
+  "license": "CC-BY 3.0 / CC0",
+  "slug": "graveyard-retro-game-music"
+ },
+ {
+  "idx": 55,
+  "file": "music/55.ogg",
+  "src": "Fly.ogg",
+  "title": "Chiptune Loops",
+  "author": "MatiasVME",
+  "license": "CC0",
+  "slug": "chiptune-loops-0"
+ },
+ {
+  "idx": 56,
+  "file": "music/56.mp3",
+  "src": "harpsichord 8bit theme.mp3",
+  "title": "harpsichord 8bit theme",
+  "author": "gustavoasilveira",
+  "license": "CC-BY 3.0",
+  "slug": "harpsichord-8bit-theme"
+ },
+ {
+  "idx": 57,
+  "file": "music/57.ogg",
+  "src": "Sunless.ogg",
+  "title": "Chiptune Loops",
+  "author": "MatiasVME",
+  "license": "CC0",
+  "slug": "chiptune-loops-0"
+ },
+ {
+  "idx": 58,
+  "file": "music/58.ogg",
+  "src": "Underground.ogg",
+  "title": "Chiptune Loops",
+  "author": "MatiasVME",
+  "license": "CC0",
+  "slug": "chiptune-loops-0"
+ },
+ {
+  "idx": 59,
+  "file": "music/59.mp3",
+  "src": "bgm_action_3.mp3",
+  "title": "8-bit Music Pack (Loopable)",
+  "author": "CodeManu",
+  "license": "CC-BY 3.0",
+  "slug": "8-bit-music-pack-loopable"
+ },
+ {
+  "idx": 60,
+  "file": "music/60.mp3",
+  "src": "bgm_action_4.mp3",
+  "title": "8-bit Music Pack (Loopable)",
+  "author": "CodeManu",
+  "license": "CC-BY 3.0",
+  "slug": "8-bit-music-pack-loopable"
+ },
+ {
+  "idx": 61,
+  "file": "music/61.ogg",
+  "src": "Something.ogg",
+  "title": "Chiptune Loops",
+  "author": "MatiasVME",
+  "license": "CC0",
+  "slug": "chiptune-loops-0"
+ },
+ {
+  "idx": 62,
+  "file": "music/62.ogg",
+  "src": "romanticchill-loopable.ogg",
+  "title": "Retro Tunes",
+  "author": "TheFrenchDodo",
+  "license": "CC0",
+  "slug": "retro-tunes"
+ },
+ {
+  "idx": 63,
+  "file": "music/63.ogg",
+  "src": "Defeated (Game Over Tune).ogg",
+  "title": "Space Shooter Music",
+  "author": "Oblidivm",
+  "license": "CC-BY 3.0",
+  "slug": "space-shooter-music"
+ },
+ {
+  "idx": 64,
+  "file": "music/64.ogg",
+  "src": "FranticLevel.ogg",
+  "title": "Hungry Dino (9 chiptune tracks, 10 SFX)",
+  "author": "SketchyLogic",
+  "license": "CC-BY 3.0",
+  "slug": "hungry-dino-9-chiptune-tracks-10-sfx"
+ },
+ {
+  "idx": 65,
+  "file": "music/65.ogg",
+  "src": "05_building_a_colony_intro.ogg",
+  "title": "Outer Space Music Pack",
+  "author": "leohpaz",
+  "license": "CC-BY 4.0 / CC-BY 3.0",
+  "slug": "outer-space-music-pack"
+ },
+ {
+  "idx": 66,
+  "file": "music/66.mp3",
+  "src": "space fanfare.mp3",
+  "title": "space fanfare",
+  "author": "Bobjt",
+  "license": "CC-BY 3.0 / CC0",
+  "slug": "space-fanfare"
+ },
+ {
+  "idx": 67,
+  "file": "music/67.ogg",
+  "src": "action loop.ogg",
+  "title": "Action Music Loop",
+  "author": "AppPro",
+  "license": "CC0",
+  "slug": "action-music-loop"
+ },
+ {
+  "idx": 68,
+  "file": "music/68.ogg",
+  "src": "MainTheme.ogg",
+  "title": "Hungry Dino (9 chiptune tracks, 10 SFX)",
+  "author": "SketchyLogic",
+  "license": "CC-BY 3.0",
+  "slug": "hungry-dino-9-chiptune-tracks-10-sfx"
+ },
+ {
+  "idx": 69,
+  "file": "music/69.ogg",
+  "src": "fight.ogg",
+  "title": "Fast fight / battle music",
+  "author": "Ville Nousiainen (mutkanto)",
+  "license": "CC0",
+  "slug": "fast-fight-battle-music"
+ },
+ {
+  "idx": 70,
+  "file": "music/70.mp3",
+  "src": "rapture_128.mp3",
+  "title": "WGS Music #9 - Rapture [Loops]",
+  "author": "Retimer",
+  "license": "CC-BY 3.0",
+  "slug": "wgs-music-9-rapture-loops"
+ },
+ {
+  "idx": 71,
+  "file": "music/71.mp3",
+  "src": "PKMN Battle Main 1.1.mp3",
+  "title": "Porkymon Battle Theme",
+  "author": "Joth",
+  "license": "CC0",
+  "slug": "porkymon-battle-theme"
+ },
+ {
+  "idx": 72,
+  "file": "music/72.ogg",
+  "src": "HappyLevel.ogg",
+  "title": "Hungry Dino (9 chiptune tracks, 10 SFX)",
+  "author": "SketchyLogic",
+  "license": "CC-BY 3.0",
+  "slug": "hungry-dino-9-chiptune-tracks-10-sfx"
+ }
+]

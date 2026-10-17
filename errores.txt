@@ -47,3 +47,30 @@
 2026-10-16 21:38:37  AUDIO_start en=1 ctx=suspended playing=1 tr=-6
 2026-10-16 21:38:39  AUDIO_after en=1 ctx=running playing=1 tr=-6
 2026-10-16 21:38:45  DIAG lvl=4 god=true freeze=true n=1 spawned=1 total=18 alive=1 | e0 x=210 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_elite
+2026-10-17 00:55:54  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-17 00:56:06  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-17 00:56:09  AUDIO_unlock en=1 ctx=suspended playing=1 tr=-1
+2026-10-17 00:56:09  AUDIO_after en=1 ctx=suspended playing=1 tr=-1
+2026-10-17 00:56:14  AUDIO_start en=1 ctx=running playing=1 tr=-6
+2026-10-17 00:56:28  DIAG lvl=5 god=true freeze=true n=1 spawned=1 total=19 alive=1 | e0 x=61 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_drone
+2026-10-17 00:57:25  AUDIO_load en=1 ctx=suspended playing=1 tr=-1
+2026-10-17 02:10:19  AUDIO_load en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:10:51  AUDIO_unlock en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:10:51  AUDIO_after en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:10:51  AUDIO_start en=1 ctx=running playing=0 tr=-6
+2026-10-17 02:10:54  AUDIO_load en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:11:10  AUDIO_unlock en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:11:10  AUDIO_after en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:11:10  AUDIO_start en=1 ctx=running playing=0 tr=-6
+2026-10-17 02:11:16  DIAG lvl=0 god=true freeze=true n=1 spawned=1 total=22 alive=1 | e0 x=128 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_drone
+2026-10-17 02:12:09  Uncaught TypeError: Cannot read properties of undefined (reading 'size') @ phaser.min.js:1:242068
+2026-10-17 02:12:15  AUDIO_load en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:12:17  AUDIO_unlock en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:12:17  AUDIO_start en=1 ctx=suspended playing=0 tr=-6
+2026-10-17 02:12:17  AUDIO_after en=1 ctx=running playing=0 tr=-6
+2026-10-17 02:12:19  DIAG lvl=0 god=true freeze=true n=1 spawned=1 total=22 alive=1 | e0 x=78 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_drone
+2026-10-17 02:27:11  AUDIO_load en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:27:15  AUDIO_unlock en=1 ctx=suspended playing=0 tr=-1
+2026-10-17 02:27:16  AUDIO_after en=1 ctx=running playing=0 tr=-1
+2026-10-17 02:27:34  AUDIO_start en=1 ctx=running playing=0 tr=-6
+2026-10-17 02:27:42  DIAG lvl=6 god=true freeze=true n=1 spawned=1 total=32 alive=1 | e0 x=214 y=-40 vis=true a=0.25 sx=0.25 tex=enemy_drone

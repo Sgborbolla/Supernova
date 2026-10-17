@@ -1,0 +1,5 @@
+# Candidatos de audio temporales (no son parte del juego)
+.musicdl/probe_aud/
+# Salidas de servidor locales
+.musicdl/server.out
+.musicdl/server8001.out

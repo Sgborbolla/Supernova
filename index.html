@@ -162,10 +162,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
       </g>
     </svg>
   </div>
-  <div class="ship ship-1"><div class="exhaust"></div><canvas data-key="viper" width="44" height="62"></canvas></div>
-  <div class="ship ship-2"><div class="exhaust"></div><canvas data-key="falcon" width="44" height="62"></canvas></div>
-  <div class="ship ship-3"><div class="exhaust"></div><canvas data-key="phantom" width="44" height="62"></canvas></div>
-  <div class="ship ship-4"><div class="exhaust"></div><canvas data-key="titan" width="44" height="62"></canvas></div>
+  <div class="ship ship-1"><div class="exhaust"></div><canvas data-key="xwing" width="56" height="70"></canvas></div>
+  <div class="ship ship-2"><div class="exhaust"></div><canvas data-key="tie" width="60" height="64"></canvas></div>
+  <div class="ship ship-3"><div class="exhaust"></div><canvas data-key="interprise" width="66" height="80"></canvas></div>
+  <div class="ship ship-4"><div class="exhaust"></div><canvas data-key="millennium" width="88" height="88"></canvas></div>
   <svg class="asteroid" style="top:25%;left:22%;width:56px;height:56px;" viewBox="0 0 60 60"><path d="M 30,5 L 50,15 L 55,35 L 45,55 L 20,55 L 5,40 L 10,20 Z" fill="#666" stroke="#333" stroke-width="2"/><circle cx="25" cy="25" r="4" fill="#444"/><circle cx="40" cy="35" r="3" fill="#444"/><circle cx="20" cy="45" r="2" fill="#444"/></svg>
   <svg class="asteroid" style="top:72%;left:68%;width:74px;height:74px;animation-duration:25s;" viewBox="0 0 80 80"><path d="M 40,5 L 65,20 L 75,45 L 60,70 L 30,75 L 10,55 L 15,25 Z" fill="#777" stroke="#333" stroke-width="2"/><circle cx="30" cy="30" r="5" fill="#555"/><circle cx="55" cy="40" r="4" fill="#555"/><circle cx="35" cy="60" r="3" fill="#555"/></svg>
   <svg class="asteroid" style="top:14%;right:18%;width:46px;height:46px;animation-duration:18s;" viewBox="0 0 50 50"><path d="M 25,3 L 42,12 L 47,30 L 38,45 L 15,47 L 3,33 L 8,15 Z" fill="#555" stroke="#222" stroke-width="1.5"/><circle cx="20" cy="22" r="3" fill="#333"/><circle cx="35" cy="30" r="2" fill="#333"/></svg>
@@ -304,10 +304,6 @@ const DIFFS = [
 
 // ===== NAVES =====
 const SHIPS = [
-  { key:'viper',   name:'VIPER',   color:0x00cc66, speed:280, fireRate:180 },
-  { key:'falcon',  name:'FALCON',  color:0x4488ff, speed:260, fireRate:150 },
-  { key:'phantom', name:'PHANTOM', color:0xaa44ff, speed:300, fireRate:200 },
-  { key:'titan',   name:'TITAN',   color:0xff8800, speed:220, fireRate:130 },
   // ===== NAVES LEGENDARIAS (nombres reales) =====
   { key:'xwing',  name:'X-WING · ROJA 5',        full:'Luke Skywalker · Star Wars',   color:0xe8ecef, speed:310, fireRate:175, legendary:true, w:56, h:70 },
   { key:'tie',    name:'TIE ADVANCED x1',        full:'Darth Vader · Star Wars',      color:0x8b95a3, speed:340, fireRate:215, legendary:true, w:60, h:64 },
@@ -2347,72 +2343,7 @@ LEVELS.forEach((L,i)=>{
 // ===== NAVES DETALLADAS =====
 function drawPlayerShip(g, key, color) {
   const lt=shade(color,1.4), dk=shade(color,0.5), dk2=shade(color,0.3);
-  if (key==='viper') {
-    gPoly(g,gPts([[6,28],[1,52],[14,46],[12,30]]),dk,OUT,1.5);
-    gPoly(g,gPts([[38,28],[43,52],[30,46],[32,30]]),dk,OUT,1.5);
-    gPoly(g,gPts([[8,30],[4,48],[11,44]]),shade(color,0.7),null);
-    gPoly(g,gPts([[36,30],[40,48],[33,44]]),shade(color,0.7),null);
-    g.fillStyle(0x1a2230,1); g.fillRect(4,50,7,6); g.fillRect(33,50,7,6);
-    g.fillStyle(0x00ffff,0.9); g.fillRect(5,53,5,4); g.fillRect(34,53,5,4);
-    g.fillStyle(0xffffff,0.7); g.fillRect(6,54,3,2); g.fillRect(35,54,3,2);
-    gPoly(g,gPts([[22,2],[32,14],[34,42],[28,54],[16,54],[10,42],[12,14]]),color,OUT,1.8);
-    gPoly(g,gPts([[22,8],[28,18],[29,38],[22,48],[15,38],[16,18]]),dk,null);
-    g.fillStyle(0x0a1420,1); g.fillEllipse(22,20,10,14);
-    g.fillStyle(0x00ddff,0.85); g.fillEllipse(22,19,8,11);
-    g.fillStyle(0x88ffff,0.6); g.fillEllipse(22,17,5,6);
-    g.fillStyle(0xffffff,0.9); g.fillEllipse(22,16,2,3);
-    g.lineStyle(1,lt,0.6); g.lineBetween(14,30,14,42); g.lineBetween(30,30,30,42);
-    gPoly(g,gPts([[22,2],[26,10],[18,10]]),lt,null);
-    g.fillStyle(0xff0000,0.9); g.fillCircle(8,34,2);
-    g.fillStyle(0x00ff00,0.9); g.fillCircle(36,34,2);
-    g.fillStyle(0x1a2230,1); g.fillRect(18,52,8,6);
-    g.fillStyle(0xff6600,0.9); g.fillRect(19,55,6,4);
-    g.fillStyle(0xffcc00,0.8); g.fillRect(20,56,4,3);
-  } else if (key==='falcon') {
-    gPoly(g,gPts([[4,24],[0,48],[16,42],[14,26]]),dk,OUT,1.5);
-    gPoly(g,gPts([[40,24],[44,48],[28,42],[30,26]]),dk,OUT,1.5);
-    gPoly(g,gPts([[6,26],[3,44],[13,40]]),shade(color,0.65),null);
-    gPoly(g,gPts([[38,26],[41,44],[31,40]]),shade(color,0.65),null);
-    g.fillStyle(0x222830,1); g.fillRect(2,20,4,14); g.fillRect(38,20,4,14);
-    g.fillStyle(0x4488ff,0.7); g.fillRect(3,20,2,4); g.fillRect(39,20,2,4);
-    gPoly(g,gPts([[22,0],[34,16],[36,44],[28,56],[16,56],[8,44],[10,16]]),color,OUT,1.8);
-    gPoly(g,gPts([[22,6],[30,18],[31,40],[22,50],[13,40],[14,18]]),dk,null);
-    g.fillStyle(0x0a1020,1); g.fillRoundedRect(17,12,10,18,3);
-    g.fillStyle(0x2266cc,0.8); g.fillRoundedRect(18,13,8,16,2);
-    g.fillStyle(0x66aaff,0.5); g.fillRoundedRect(19,14,6,8,1);
-    g.fillStyle(0xffffff,0.8); g.fillRect(21,15,2,4);
-    g.fillStyle(0x1a2230,1);
-    g.fillRect(14,54,5,5); g.fillRect(20,54,4,6); g.fillRect(25,54,5,5);
-    g.fillStyle(0x0088ff,0.9);
-    g.fillRect(15,56,3,3); g.fillRect(21,57,2,3); g.fillRect(26,56,3,3);
-  } else if (key==='phantom') {
-    gPoly(g,gPts([[22,0],[40,44],[30,40],[22,50],[14,40],[4,44]]),shade(color,0.7),OUT,1.6);
-    gPoly(g,gPts([[22,6],[34,40],[22,46],[10,40]]),color,null);
-    gPoly(g,gPts([[22,10],[28,38],[22,42],[16,38]]),dk,null);
-    g.fillStyle(0x1a0028,0.8); g.fillRect(8,32,6,10); g.fillRect(30,32,6,10);
-    g.fillStyle(0xaa44ff,0.5); g.fillRect(9,33,4,3); g.fillRect(31,33,4,3);
-    g.fillStyle(0x0a0014,1); g.fillEllipse(22,22,8,10);
-    g.fillStyle(0x8822cc,0.7); g.fillEllipse(22,21,6,7);
-    g.fillStyle(0x1a0028,1); g.fillRect(16,48,5,5); g.fillRect(23,48,5,5);
-    g.fillStyle(0xaa44ff,0.8); g.fillRect(17,50,3,3); g.fillRect(24,50,3,3);
-    g.fillStyle(0xff44ff,0.8); g.fillCircle(22,8,2);
-  } else if (key==='titan') {
-    gPoly(g,gPts([[2,20],[12,14],[12,48],[3,54]]),dk,OUT,1.5);
-    gPoly(g,gPts([[42,20],[32,14],[32,48],[41,54]]),dk,OUT,1.5);
-    g.fillStyle(0x33394a,1); g.fillRect(4,18,6,16); g.fillRect(34,18,6,16);
-    g.lineStyle(1.5,OUT,0.85); g.strokeRect(4,18,6,16); g.strokeRect(34,18,6,16);
-    g.fillStyle(0xffdd44,1); g.fillRect(5,18,4,3); g.fillRect(35,18,4,3);
-    gPoly(g,gPts([[22,4],[36,12],[38,44],[28,56],[16,56],[6,44],[8,12]]),color,OUT,1.8);
-    gPoly(g,gPts([[22,10],[32,16],[33,40],[26,50],[18,50],[11,40],[12,16]]),dk,null);
-    g.fillStyle(0xfff0c0,0.95); g.fillRoundedRect(17,14,10,14,2);
-    g.fillStyle(0x1a2230,1); g.fillRoundedRect(18,15,8,12,1);
-    g.fillStyle(0xff8800,0.6); g.fillRect(19,16,6,4);
-    g.fillStyle(0x1a2230,1); g.fillRect(12,52,8,8); g.fillRect(24,52,8,8);
-    g.fillStyle(0xff6600,1); g.fillRect(13,56,6,5); g.fillRect(25,56,6,5);
-    g.fillStyle(0xffaa00,0.8); g.fillRect(14,57,4,3); g.fillRect(26,57,4,3);
-
-  // ===================== NAVES LEGENDARIAS =====================
-  } else if (key==='xwing') {
+  if (key==='xwing') {
     // X-Wing "Roja 5" de Luke Skywalker: 4 alas en X, 4 cañones, R2-D2, 4 motores
     const hD=0x7c858f, hL=0xf6f9fb, red=0xcc2b20;
     const wings=[
@@ -3119,6 +3050,10 @@ const AUDIO = (() => {
     spec['player:falcon'] ={freq:480,wave:'sine',    dur:0.3,vol:0.15,noiseVol:0.09,engFreq:66,engWave:'triangle',engLfo:11,engLfoAmt:6, engVol:0.06};
     spec['player:phantom']={freq:620,wave:'sine',    dur:0.3,vol:0.15,noiseVol:0.09,engFreq:84,engWave:'sawtooth',engLfo:13,engLfoAmt:10,engVol:0.06};
     spec['player:titan']  ={freq:400,wave:'sawtooth',dur:0.32,vol:0.16,noiseVol:0.1, engFreq:58,engWave:'sawtooth',engLfo:7, engLfoAmt:7, engVol:0.07};
+    spec['player:xwing']     ={freq:560,wave:'triangle',dur:0.28,vol:0.15,noiseVol:0.10,engFreq:78, engWave:'sawtooth',engLfo:10,engLfoAmt:8, engVol:0.065};
+    spec['player:tie']       ={freq:760,wave:'sawtooth',dur:0.26,vol:0.13,noiseVol:0.08,engFreq:110,engWave:'sine',    engLfo:14,engLfoAmt:12,engVol:0.055};
+    spec['player:interprise']={freq:340,wave:'sine',    dur:0.38,vol:0.16,noiseVol:0.07,engFreq:48, engWave:'triangle',engLfo:5, engLfoAmt:5, engVol:0.07};
+    spec['player:millennium'] ={freq:430,wave:'sawtooth',dur:0.34,vol:0.16,noiseVol:0.12,engFreq:62, engWave:'sawtooth',engLfo:8, engLfoAmt:7, engVol:0.075};
     return spec;
   })();
   const engineVoices=new Map(), engineOrder=[];
@@ -4220,7 +4155,7 @@ class GameScene extends Phaser.Scene {
   constructor(){ super('Game'); }
   init(data){
     this.diffIdx=data.diffIdx||1;
-    this.shipIdx=data.shipIdx||0;
+    this.shipIdx=Math.max(0,Math.min(SHIPS.length-1,data.shipIdx||0));
     this.diff=DIFFS[this.diffIdx];
     this.shipKey=SHIPS[this.shipIdx].key;
     this.shipConfig=SHIPS[this.shipIdx];
@@ -4935,7 +4870,7 @@ class GameScene extends Phaser.Scene {
     if (this.invincible||this.shieldActive) return;
     this.lives--;
     AUDIO.engineStop('player');
-    AUDIO.sfx('pdeath_'+this.shipKey);
+    AUDIO.sfx('pdeath_'+({xwing:'viper',tie:'phantom',interprise:'titan',millennium:'falcon'}[this.shipKey]||this.shipKey));
     vib(300);
     this.cameras.main.shake(200,0.015);
     if (this.lives<=0){
@@ -5456,11 +5391,11 @@ class GameScene extends Phaser.Scene {
       seen[id]=true;
       let rp=this.remotePlayers[id];
       if (!rp){
-        const ship=this.add.image((typeof d.x==='number')?d.x:W/2,(typeof d.y==='number')?d.y:H-100,'ship_'+(d.key||'viper')).setDepth(10).setScale(0.62).setTint(0xaaffcc);
+        const ship=this.add.image((typeof d.x==='number')?d.x:W/2,(typeof d.y==='number')?d.y:H-100,'ship_'+(d.key||'xwing')).setDepth(10).setScale(0.62).setTint(0xaaffcc);
         const flame=this.add.image(ship.x,ship.y+20,'flame').setOrigin(0.5,0).setDepth(9).setBlendMode(Phaser.BlendModes.ADD).setScale(0.7,0.9);
         const name=(d.name||('P'+id.slice(-3))).toString().slice(0,12);
         const label=this.add.text(ship.x,ship.y-30,name,{fontSize:'9px',fontFamily:'monospace',color:'#aaffcc',stroke:'#002200',strokeThickness:3}).setOrigin(0.5).setDepth(12);
-        rp=this.remotePlayers[id]={ship,flame,label,name,key:d.key||'viper',fireCd:0,firing:0};
+        rp=this.remotePlayers[id]={ship,flame,label,name,key:d.key||'xwing',fireCd:0,firing:0};
       }
       if (d.name && rp.label && rp.label.text!==d.name.slice(0,12)){ rp.name=d.name.slice(0,12); rp.label.setText(rp.name); }
       const tx=(typeof d.x==='number')?d.x:rp.ship.x;
@@ -5690,7 +5625,8 @@ class GameOverScene extends Phaser.Scene {
   init(data){
     this.finalScore=data.score||0; this.shotsFired=data.shotsFired||0; this.shotsHit=data.shotsHit||0;
     this.victory=!!data.victory; this.defeat=!!data.defeat;
-    this.levelIdx=data.levelIdx; this.diffIdx=data.diffIdx; this.shipIdx=data.shipIdx;
+    this.levelIdx=data.levelIdx; this.diffIdx=data.diffIdx;
+    this.shipIdx=(typeof data.shipIdx==='number')?Math.max(0,Math.min(SHIPS.length-1,data.shipIdx)):0;
     this.scoreAtLevelStart=data.scoreAtLevelStart||0;
   }
   create(){
@@ -5807,12 +5743,19 @@ class CreditsScene extends Phaser.Scene {
         fillRoundedRect:function(x,y,w,h,r){rr(c,x,y,w,h,r);c.fill();},
         fillPoints:function(pts){close(pts);c.fill();},
         strokePoints:function(pts){close(pts);c.stroke();},
-        lineBetween:function(x1,y1,x2,y2){c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
+        lineBetween:function(x1,y1,x2,y2){c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();},
+        strokeEllipse:function(x,y,w,h){c.beginPath();c.ellipse(x,y,w/2,h/2,0,0,6.2832);c.stroke();},
+        strokeCircle:function(x,y,r){c.beginPath();c.arc(x,y,r,0,6.2832);c.stroke();},
+        strokeRoundedRect:function(x,y,w,h,r){rr(c,x,y,w,h,r);c.stroke();},
+        fillTriangle:function(x,y,x2,y2,x3,y3){c.beginPath();c.moveTo(x,y);c.lineTo(x2,y2);c.lineTo(x3,y3);c.closePath();c.fill();},
+        strokeTriangle:function(x,y,x2,y2,x3,y3){c.beginPath();c.moveTo(x,y);c.lineTo(x2,y2);c.lineTo(x3,y3);c.closePath();c.stroke();},
+        arc:function(x,y,r,a0,a1,acw){c.beginPath();c.arc(x,y,r,a0,a1,!!acw);},
+        strokePath:function(){c.stroke();}
       };
     };
     var cv=document.querySelectorAll('#intro-overlay .ship canvas');
     for(var i=0;i<cv.length;i++){
-      var key=cv[i].getAttribute('data-key')||'viper';
+      var key=cv[i].getAttribute('data-key')||'xwing';
       var sh=null; for(var j=0;j<SHIPS.length;j++){ if(SHIPS[j].key===key) sh=SHIPS[j]; }
       if(!sh) sh=SHIPS[0];
       var ctx=cv[i].getContext("2d");
